@@ -1,0 +1,2587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>新澳特码版回测 v1.5.4网络验证免费版</title>
+<style>
+:root{
+    --bg:#080a0e;
+    --bg-2:#0b0e14;
+    --surface:#11151d;
+    --surface-2:#161b26;
+    --surface-3:#1c2230;
+    --line:rgba(255,255,255,.065);
+    --line-2:rgba(255,255,255,.11);
+    --text:#e7eaf0;
+    --dim:#8b93a4;
+    --faint:#5a6272;
+    --gold:#e8c584;
+    --red:#ff6470;
+    --red-rgb:255,100,112;
+    --green:#38e0a0;
+    --blue:#6aa8ff;
+    --violet:#a68bff;
+
+    /* 主题强调色（默认薄荷青） */
+    --accent:#4ee0c1;
+    --accent-rgb:78,224,193;
+    --accent-deep:#25ab90;
+    --accent-ink:#04241d;
+}
+body[data-theme="gold"]{
+    --accent:#e8c584; --accent-rgb:232,197,132; --accent-deep:#b8914a; --accent-ink:#2b1f06;
+    --bg:#0a0906; --bg-2:#100e0a; --surface:#16130d; --surface-2:#1c1811; --surface-3:#241f16;
+    --line:rgba(232,197,132,.07); --line-2:rgba(232,197,132,.13);
+    --dim:#a49a86; --faint:#6d6455;
+}
+body[data-theme="ice"]{
+    --accent:#7db4ff; --accent-rgb:125,180,255; --accent-deep:#3d7fd6; --accent-ink:#06192e;
+    --bg:#070a10; --bg-2:#0a0e16; --surface:#101620; --surface-2:#151c28; --surface-3:#1b2432;
+    --line:rgba(125,180,255,.07); --line-2:rgba(125,180,255,.13);
+}
+body[data-theme="violet"]{
+    --accent:#b39bff; --accent-rgb:179,155,255; --accent-deep:#7a5ce0; --accent-ink:#14082e;
+    --bg:#09080f; --bg-2:#0d0b15; --surface:#13111c; --surface-2:#191624; --surface-3:#201c2e;
+    --line:rgba(179,155,255,.07); --line-2:rgba(179,155,255,.13);
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","PingFang SC",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    padding-bottom:calc(78px + env(safe-area-inset-bottom));
+    -webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
+    overscroll-behavior-y: none; 
+}
+body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+        radial-gradient(620px 420px at 8% -8%, rgba(var(--accent-rgb),.09), transparent 68%),
+        radial-gradient(520px 420px at 96% -2%, rgba(126,140,255,.06), transparent 68%);
+}
+input,textarea,select{color-scheme:dark;font-family:inherit}
+::placeholder{color:var(--faint)}
+
+/* ---------- 顶栏 ---------- */
+.app-header{
+    position:sticky;top:0;z-index:100;
+    background:rgba(9,11,16,.78);
+    backdrop-filter:blur(22px) saturate(160%);
+    -webkit-backdrop-filter:blur(22px) saturate(160%);
+    border-bottom:1px solid var(--line);
+    padding:14px 16px;
+    display:flex;justify-content:space-between;align-items:center;
+}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 12px 1px rgba(var(--accent-rgb),.75);
+}
+.app-title{font-size:16px;font-weight:700;letter-spacing:.02em}
+.header-right{display:flex;align-items:center;gap:9px}
+.app-status{
+    font-size:11px;font-weight:600;letter-spacing:.03em;
+    color:var(--dim);background:var(--surface-2);
+    border:1px solid var(--line);
+    padding:5px 11px;border-radius:20px;
+    display:flex;align-items:center;gap:4px;
+    cursor:pointer; transition: all .2s;
+}
+.app-status:active { transform: scale(.95); }
+.app-status.vip{
+    color:var(--gold);border-color:rgba(232,197,132,.3);background:rgba(232,197,132,.08);
+}
+.theme-quick{
+    width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--surface-2);border:1px solid var(--line-2);
+    cursor:pointer;padding:0;transition:transform .18s;
+}
+.theme-quick:active{transform:scale(.9)}
+.theme-quick i{
+    display:block;width:15px;height:15px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 10px -1px rgba(var(--accent-rgb),.85);
+    transition:background .25s,box-shadow .25s;
+}
+.app-content{padding:14px;position:relative;z-index:1; min-height: 80vh;}
+.page{display:none}
+.page.active{display:block}
+
+/* ---------- 卡片 ---------- */
+.card{
+    background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.008));
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:12px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 28px -14px rgba(0,0,0,.9);
+}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
+.card-title{
+    font-size:13px;font-weight:700;letter-spacing:.04em;
+    color:var(--text);display:flex;align-items:center;gap:8px;
+}
+.card-title::before{
+    content:'';width:3px;height:13px;border-radius:2px;
+    background:linear-gradient(180deg,var(--accent),rgba(var(--accent-rgb),.25));
+}
+.hint{font-size:11px;color:var(--faint);line-height:1.7;margin-top:10px}
+.hint b{color:var(--gold);font-weight:600}
+.chip-mint{
+    font-size:10px;font-weight:700;letter-spacing:.05em;
+    color:var(--accent);background:rgba(var(--accent-rgb),.1);
+    border:1px solid rgba(var(--accent-rgb),.28);
+    padding:4px 10px;border-radius:20px;
+}
+
+/* ---------- 最新开奖展示 ---------- */
+.latest-card{
+    background:linear-gradient(165deg,rgba(var(--accent-rgb),.08) 0%,rgba(var(--accent-rgb),.02) 60%,rgba(255,255,255,.01) 100%);
+    border:1px solid rgba(var(--accent-rgb),.24);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding: 20px 16px; text-align:center;
+    position: relative; overflow: hidden;
+    box-shadow:0 0 30px -15px rgba(var(--accent-rgb),.4);
+}
+.latest-card::after{
+    content:''; position:absolute; top:-40px; left:-40px; width:120px; height:120px;
+    background:radial-gradient(circle,rgba(var(--accent-rgb),.15),transparent 70%);
+    pointer-events:none;
+}
+.latest-title{
+    font-size:12px; font-weight:700; color:var(--dim); letter-spacing:.05em;
+    margin-bottom: 14px;
+}
+.latest-period{
+    font-size:13px; font-weight:800; color:var(--accent); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 6px;
+}
+.latest-ball-wrap{
+    position: relative;
+    display: inline-flex; justify-content: center; align-items: center;
+}
+.latest-ball-wrap::before{
+    content:''; position:absolute; inset:-8px; border-radius:50%;
+    border: 2px dashed rgba(var(--accent-rgb),.3);
+}
+.latest-card .num-badge{
+    width: 64px; height: 64px; pointer-events: none; margin: 0;
+    box-shadow: inset 0 2px 4px rgba(255,255,255,.1), 0 8px 20px -5px rgba(0,0,0,.8);
+}
+.latest-card .ball-num{ font-size: 24px; }
+.latest-card .ball-zodiac{ font-size: 11px; margin-top: 3px; }
+
+/* ---------- 表单 ---------- */
+textarea{
+    width:100%;padding:12px;
+    border:1px solid var(--line-2);border-radius:12px;
+    font-size:14px;background:var(--bg-2);
+    height:140px;resize:none;outline:none;line-height:1.6;
+    color:var(--text);
+    transition:border-color .2s,box-shadow .2s;
+}
+textarea:focus{border-color:rgba(var(--accent-rgb),.55);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.09)}
+.quick-add-box{display:flex;gap:8px;margin-top:10px}
+.quick-add-box input{
+    flex:1;min-width:0;padding:11px 12px;
+    border:1px solid var(--line-2);border-radius:12px;
+    font-size:14px;outline:none;background:var(--bg-2);color:var(--text);
+    transition:border-color .2s,box-shadow .2s;
+}
+.quick-add-box input:focus{border-color:rgba(var(--accent-rgb),.55);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.09)}
+.quick-add-box button{
+    padding:0 20px;background:rgba(var(--accent-rgb),.12);
+    color:var(--accent);border:1px solid rgba(var(--accent-rgb),.3);
+    border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;
+    transition:all .18s;
+}
+.quick-add-box button:active{transform:scale(.96);background:rgba(var(--accent-rgb),.2)}
+.utils-bar{display:flex;gap:10px;margin-top:12px}
+.utils-bar button{
+    flex:1;padding:11px 0;border-radius:12px;
+    font-size:13px;font-weight:700;cursor:pointer;
+    letter-spacing:.03em;transition:all .18s;
+}
+.utils-bar button:active{transform:scale(.97)}
+.btn-save{background:var(--surface-2);border:1px solid var(--line-2);color:var(--dim)}
+.btn-clear{background:rgba(var(--red-rgb),.09);border:1px solid rgba(var(--red-rgb),.24);color:var(--red)}
+
+/* ---------- 主题选择 ---------- */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.theme-opt{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    padding:13px 4px;border-radius:13px;cursor:pointer;
+    background:rgba(255,255,255,.022);border:1px solid var(--line);
+    color:var(--dim);font-size:11px;font-weight:600;letter-spacing:.02em;
+    font-family:inherit;transition:all .2s;
+}
+.theme-opt:active{transform:scale(.96)}
+.theme-opt .theme-dot{
+    width:20px;height:20px;border-radius:50%;background:var(--d);
+    box-shadow:0 0 12px -2px var(--d);
+}
+.theme-opt.active{
+    border-color:rgba(var(--accent-rgb),.55);
+    background:rgba(var(--accent-rgb),.08);
+    color:var(--accent);
+}
+.theme-opt.active .theme-dot{transform:scale(1.15)}
+
+/* ---------- 过滤器 ---------- */
+.filter-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 0;border-bottom:1px solid var(--line);gap:10px;
+}
+.filter-row:last-child{border-bottom:none;padding-bottom:0}
+.filter-row:first-of-type{padding-top:0}
+.filter-label-box{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.filter-label{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap}
+.toggle-switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;cursor:pointer}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+.slider{
+    position:absolute;inset:0;cursor:pointer;
+    background:#2a3140;transition:.25s;border-radius:24px;
+    border:1px solid var(--line-2);
+}
+.slider:before{
+    position:absolute;content:"";height:16px;width:16px;left:3px;top:3px;
+    background:#69717f;transition:.25s;border-radius:50%;
+}
+input:checked + .slider{background:rgba(var(--accent-rgb),.22);border-color:rgba(var(--accent-rgb),.45)}
+input:checked + .slider:before{transform:translateX(18px);background:var(--accent);box-shadow:0 0 10px rgba(var(--accent-rgb),.65)}
+.filter-inputs{
+    display:flex;align-items:center;gap:5px;flex:1;
+    justify-content:flex-end;flex-wrap:nowrap;
+    transition:opacity .2s;
+}
+.filter-inputs.disabled{opacity:.28;pointer-events:none}
+.filter-inputs span{font-size:11.5px;color:var(--faint);white-space:nowrap}
+.filter-inputs input{
+    width:48px;padding:7px 3px;
+    border:1px solid rgba(var(--accent-rgb),.26);
+    border-radius:9px;font-size:14px;font-weight:700;
+    color:var(--accent);text-align:center;outline:none;
+    background:rgba(var(--accent-rgb),.07);
+    transition:border-color .2s;
+}
+.filter-inputs input:focus{border-color:rgba(var(--accent-rgb),.6)}
+.filter-inputs input.kill-input{
+    border-color:rgba(var(--red-rgb),.28);
+    color:var(--red);background:rgba(var(--red-rgb),.07);
+}
+.filter-inputs input.kill-input:focus{border-color:rgba(var(--red-rgb),.62)}
+.filter-inputs input.pink{
+    width:62px;border-color:rgba(166,139,255,.35);
+    color:var(--violet);background:rgba(166,139,255,.08);
+}
+
+/* ---------- select ---------- */
+select{
+    width:100%;padding:12px 40px 12px 13px;
+    border:1px solid var(--line-2);border-radius:12px;
+    font-size:14px;font-weight:500;outline:none;
+    background-color:var(--bg-2);color:var(--text);
+    cursor:pointer;appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b93a4' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;
+    transition:border-color .2s;
+}
+select:focus{border-color:rgba(var(--accent-rgb),.5)}
+
+/* ---------- 主按钮 ---------- */
+.action-btn{
+    display:block;width:100%;padding:16px 0;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent-deep) 100%);
+    color:var(--accent-ink);text-align:center;border-radius:15px;
+    font-size:15px;font-weight:800;letter-spacing:.04em;
+    border:none;cursor:pointer;margin-top:6px;
+    box-shadow:0 10px 26px -10px rgba(var(--accent-rgb),.6),inset 0 1px 0 rgba(255,255,255,.45);
+    transition:transform .16s,box-shadow .16s;
+}
+.action-btn:active{transform:scale(.975);box-shadow:0 6px 16px -10px rgba(var(--accent-rgb),.6)}
+.action-btn.small{font-size:13.5px;padding:13px 26px;margin-top:18px;width:auto;display:inline-block}
+
+/* ---------- 底部导航 ---------- */
+.bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:200;
+    height:calc(62px + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(10,12,17,.82);
+    backdrop-filter:blur(24px) saturate(160%);
+    -webkit-backdrop-filter:blur(24px) saturate(160%);
+    border-top:1px solid var(--line);
+    display:flex;
+}
+.bottom-nav button{
+    flex:1;border:none;background:none;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;font-size:10.5px;font-weight:600;letter-spacing:.03em;
+    color:var(--faint);cursor:pointer;padding:6px 0 8px;position:relative;
+    transition:color .2s;
+}
+.bottom-nav button::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%) scaleX(.3);
+    width:26px;height:2.5px;border-radius:0 0 3px 3px;
+    background:var(--accent);opacity:0;transition:all .25s;
+}
+.bottom-nav button.active{color:var(--accent)}
+.bottom-nav button.active::before{opacity:1;transform:translateX(-50%) scaleX(1);box-shadow:0 2px 12px rgba(var(--accent-rgb),.8)}
+.nav-icon{width:21px;height:21px;display:block;transition:transform .2s}
+.bottom-nav button.active .nav-icon{transform:translateY(-1px) scale(1.06)}
+
+/* ---------- 空状态 ---------- */
+.empty-state{text-align:center;padding:64px 20px;color:var(--faint)}
+.empty-icon{
+    font-size:34px;margin-bottom:16px;
+    width:76px;height:76px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    margin-left:auto;margin-right:auto;
+    background:radial-gradient(circle at 50% 40%,rgba(var(--accent-rgb),.12),transparent 70%);
+    border:1px solid rgba(var(--accent-rgb),.16);
+}
+.empty-title{font-size:14px;font-weight:600;color:var(--dim)}
+.empty-hint{font-size:12px;margin-top:7px;color:var(--faint)}
+
+/* ---------- AI 策略卡 ---------- */
+.ai-strategy-box{
+    position:relative;overflow:hidden;
+    background:linear-gradient(150deg,#121a24 0%,#0e1420 55%,#111018 100%);
+    border:1px solid rgba(var(--accent-rgb),.16);
+    border-radius:18px;padding:16px;margin-bottom:12px;
+}
+.ai-strategy-box::after{
+    content:'';position:absolute;top:-60px;right:-40px;
+    width:160px;height:160px;border-radius:50%;
+    background:radial-gradient(circle,rgba(var(--accent-rgb),.16),transparent 70%);
+    pointer-events:none;
+}
+.ai-title{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12.5px;font-weight:700;letter-spacing:.05em;color:var(--accent);
+    margin-bottom:12px;padding-bottom:11px;
+    border-bottom:1px solid rgba(var(--accent-rgb),.14);
+    position:relative;z-index:1;
+}
+.ai-mode-tag{font-size:11px;font-weight:800;letter-spacing:.04em;color:var(--accent)}
+.ai-desc{font-size:12.5px;color:#9aa2b1;line-height:1.85;position:relative;z-index:1}
+.ai-desc b{color:var(--gold);font-weight:700}
+
+/* ---------- 技术面 ---------- */
+.tech-panel{
+    background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.008));
+    border:1px solid var(--line);border-radius:18px;
+    padding:15px;margin-bottom:12px;
+}
+.tech-header{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12.5px;font-weight:700;letter-spacing:.03em;
+    color:var(--dim);margin-bottom:13px;
+}
+.tech-values{display:flex;justify-content:space-around;margin-bottom:12px}
+.tech-values > div{
+    font-size:11.5px;font-weight:600;color:var(--faint);
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.tech-values b{font-size:17px;font-weight:800;letter-spacing:.01em}
+.tech-k b{color:var(--blue)}
+.tech-d b{color:var(--gold)}
+.tech-j b{color:var(--red)}
+.sig-bull{color:var(--green);font-weight:800;font-size:11.5px}
+.sig-bear{color:var(--red);font-weight:800;font-size:11.5px}
+.tech-alert{
+    font-size:11.5px;line-height:1.8;padding:11px 12px;border-radius:11px;
+    background:rgba(255,255,255,.025);
+    border-left:2.5px solid var(--line-2);
+    color:var(--dim);
+}
+.tech-alert b{color:var(--text);font-weight:700}
+.tech-alert.res-red{border-left-color:var(--red);background:rgba(var(--red-rgb),.045)}
+.tech-alert.res-green{border-left-color:var(--green);background:rgba(56,224,160,.045)}
+
+/* 新增高级指标面板 */
+.adv-indicator-box {
+    margin-top: 12px;
+    border-top: 1px dashed var(--line-2);
+    padding-top: 12px;
+}
+.adv-indicator-title {
+    font-size: 11.5px; color: var(--faint); margin-bottom: 8px;
+    display: flex; justify-content: space-between;
+}
+.adv-indicator-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.adv-ind-item {
+    background: rgba(255,255,255,.02);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.adv-ind-name {
+    font-size: 11px; color: var(--dim); font-weight: 600;
+}
+.adv-ind-val {
+    font-size: 11.5px; font-weight: 800;
+}
+
+/* ---------- 漏斗 ---------- */
+.funnel-title{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12.5px;font-weight:700;letter-spacing:.05em;
+    color:var(--dim);margin:20px 4px 11px;
+}
+.final-count-tag{color:var(--accent);font-size:12px;letter-spacing:.03em}
+.funnel-step{
+    position:relative;
+    background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.008));
+    border:1px solid var(--line);
+    border-radius:14px;padding:13px 14px 13px 17px;
+    margin-bottom:9px;overflow:hidden;
+}
+.funnel-step::before{
+    content:'';position:absolute;left:0;top:13px;bottom:13px;
+    width:2.5px;border-radius:0 3px 3px 0;background:var(--step-c);
+    box-shadow:0 0 12px -1px var(--step-c);
+}
+.step1{--step-c:var(--gold)}
+.step2{--step-c:var(--blue)}
+.step3{--step-c:var(--green)}
+.step4{--step-c:var(--violet)}
+.step5{--step-c:var(--red)}
+.funnel-step-title{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:8px;
+}
+.funnel-step-title > div:last-child{font-size:11.5px;color:var(--dim);font-weight:600}
+.funnel-nums{font-size:11.5px;color:var(--dim);line-height:1.85;word-break:break-all}
+.funnel-nums b{color:var(--gold);font-weight:700}
+
+/* ---------- 最终结果 ---------- */
+.final-result-box{
+    background:linear-gradient(165deg,rgba(var(--accent-rgb),.08) 0%,rgba(var(--accent-rgb),.02) 60%,rgba(255,255,255,.01) 100%);
+    border:1px solid rgba(var(--accent-rgb),.24);
+    border-radius:18px;padding:18px 14px 16px;margin-bottom:12px;
+    box-shadow:0 0 40px -20px rgba(var(--accent-rgb),.5);
+}
+.final-title{
+    font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--accent);
+    text-align:center;margin-bottom:14px;
+}
+.report-info{
+    background:rgba(0,0,0,.28);
+    border:1px solid var(--line);
+    border-radius:11px;padding:11px 12px;margin-bottom:15px;
+    font-size:11.5px;color:var(--dim);line-height:1.9;
+}
+.report-info span{font-weight:700;color:var(--gold)}
+.final-nums{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:16px}
+.num-badge{
+    --c:139,147,164;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    width:46px;height:46px;border-radius:50%;cursor:pointer;
+    background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.11),rgba(255,255,255,.015) 62%);
+    border:1px solid rgba(var(--c),.42);
+    color:rgb(var(--c));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 8px -3px rgba(0,0,0,.7);
+    transition:transform .15s,opacity .18s,border-color .18s;
+    user-select:none;
+}
+.ball-num{font-size:16px;font-weight:800;line-height:1;letter-spacing:-.01em}
+.ball-zodiac{font-size:9.5px;font-weight:600;margin-top:2.5px;line-height:1;opacity:.85}
+.ball-red{--c:255,100,112}
+.ball-blue{--c:106,168,255}
+.ball-green{--c:56,224,160}
+.num-badge.removed{
+    opacity:.28;border-style:dashed;border-color:var(--line-2);
+    background:rgba(255,255,255,.015);box-shadow:none;
+}
+.num-badge.removed .ball-num,.num-badge.removed .ball-zodiac{text-decoration:line-through}
+.copy-btn{
+    width:100%;padding:14px 0;
+    background:linear-gradient(135deg,#f2d69f 0%,#cfa65c 100%);
+    color:#2b1f06;border-radius:13px;
+    font-size:14px;font-weight:800;letter-spacing:.04em;
+    border:none;cursor:pointer;
+    box-shadow:0 10px 24px -12px rgba(232,197,132,.7),inset 0 1px 0 rgba(255,255,255,.55);
+    transition:transform .16s;
+}
+.copy-btn:active{transform:scale(.975)}
+
+/* ---------- 回测 ---------- */
+.bt-title-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;gap:10px}
+.bt-title-row select{width:auto;flex-shrink:0;padding:8px 34px 8px 12px;font-size:12.5px;border-radius:10px}
+
+.bt-stats{
+    display:flex;align-items:center;gap:18px;
+    padding:16px;
+    background:rgba(255,255,255,.022);
+    border:1px solid var(--line);border-radius:16px;
+}
+.ring-wrap{position:relative;width:108px;height:108px;flex-shrink:0}
+.ring{width:100%;height:100%;transform:rotate(-90deg);display:block}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:7}
+.ring-fg{
+    fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;
+    stroke-dasharray:263.89;stroke-dashoffset:263.89;
+    transition:stroke-dashoffset 1s cubic-bezier(.22,1,.36,1),stroke .25s;
+    filter:drop-shadow(0 0 6px rgba(var(--accent-rgb),.55));
+}
+.ring-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:2px;
+}
+.ring-val{font-size:22px;font-weight:800;color:var(--accent);letter-spacing:-.02em;line-height:1}
+.ring-lbl{font-size:10px;color:var(--faint);letter-spacing:.06em;margin-top:2px}
+.bt-side{flex:1;display:flex;flex-direction:column;gap:15px;min-width:0}
+.bt-item{display:flex;flex-direction:column;gap:3px}
+.bt-val{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.01em;line-height:1.1}
+.bt-val.is-red{color:var(--red)}
+.bt-lbl{font-size:10.5px;color:var(--faint);letter-spacing:.03em}
+
+.trend-wrap{margin-top:15px}
+.trend-title{font-size:10.5px;color:var(--faint);letter-spacing:.05em;margin-bottom:8px;display:flex;justify-content:space-between}
+.trend-bar{
+    display:flex;gap:3px;overflow-x:auto;
+    padding-bottom:4px;
+    scrollbar-width:none;
+}
+.trend-bar::-webkit-scrollbar{display:none}
+.trend-cell{
+    flex:0 0 9px;width:9px;height:17px;border-radius:3px;
+}
+.trend-cell.hit{background:linear-gradient(180deg,var(--green),rgba(56,224,160,.42))}
+.trend-cell.miss{background:linear-gradient(180deg,var(--red),rgba(255,100,112,.42))}
+
+.algo-rank-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:10px;
+}
+.algo-rank-col{
+    background:rgba(255,255,255,.022);
+    border:1px solid var(--line);border-radius:12px;padding:11px;
+}
+.algo-rank-title{
+    font-size:11.5px;font-weight:700;color:var(--dim);
+    margin-bottom:9px;padding-bottom:8px;border-bottom:1px solid var(--line);
+    letter-spacing:.03em;
+}
+.algo-rank-row{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;padding:4.5px 0;color:var(--faint);
+}
+.algo-rank-row:first-child{color:var(--gold);font-weight:700}
+.algo-rank-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.algo-rank-rate{font-weight:700;color:var(--accent);flex-shrink:0;margin-left:7px}
+.algo-rank-row:first-child .algo-rank-rate{color:var(--gold)}
+
+.bt-list{
+    max-height:60vh;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior: contain; 
+    margin:-2px -2px 0;
+}
+.bt-list::-webkit-scrollbar{width:0}
+.bt-row{padding:11px 2px;border-bottom:1px solid var(--line);}
+.bt-row:last-child{border-bottom:none}
+.bt-row-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:9px}
+.bt-period{font-size:11.5px;color:var(--faint);font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt-real{
+    font-size:13px;font-weight:800;color:var(--text);
+    background:rgba(255,255,255,.06);border:1px solid var(--line-2);
+    width:31px;height:31px;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+}
+.bt-result{font-size:12px;font-weight:700;flex-shrink:0;letter-spacing:.02em}
+.bt-result.hit{color:var(--green)}
+.bt-result.miss{color:var(--red)}
+.bt-strategy-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px}
+.bt-tag{
+    font-size:10px;font-weight:600;
+    background:rgba(var(--accent-rgb),.07);color:var(--accent);
+    padding:3px 7px;border-radius:5px;
+    border:1px solid rgba(var(--accent-rgb),.16);
+    opacity:.85;
+}
+.bt-predict-detail{
+    font-size:11px;color:var(--dim);line-height:1.75;
+    background:rgba(0,0,0,.24);border:1px solid var(--line);
+    padding:9px 10px;border-radius:9px;word-break:break-all;
+}
+.bt-predict-detail span{color:var(--gold);font-weight:600}
+
+/* ---------- VIP 遮罩层 ---------- */
+.vip-mask {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(5,7,10,.88);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    display: none; align-items: center; justify-content: center;
+}
+.vip-mask.show { display: flex; }
+.vip-modal {
+    background: linear-gradient(165deg, var(--surface) 0%, var(--bg-2) 100%);
+    border: 1px solid rgba(232,197,132,.35);
+    border-radius: 20px;
+    padding: 28px 24px 24px;
+    width: 85%; max-width: 340px;
+    text-align: center;
+    box-shadow: 0 20px 50px -10px rgba(0,0,0,.9), 0 0 40px -10px rgba(232,197,132,.2);
+}
+.vip-icon { font-size: 36px; margin-bottom: 12px; }
+.vip-modal h2 { color: var(--gold); font-size: 18px; margin: 0 0 8px; font-weight: 800; letter-spacing:.02em; }
+.vip-modal p { font-size: 12px; color: var(--dim); line-height: 1.6; margin: 0 0 20px; }
+.vip-modal input {
+    width: 100%; padding: 12px; margin-bottom: 16px;
+    background: rgba(255,255,255,.03); border: 1px solid var(--line-2);
+    border-radius: 12px; color: var(--text); font-size: 15px; text-align: center;
+    outline: none; transition: border-color .2s;
+    letter-spacing: .1em;
+}
+.vip-modal input:focus { border-color: rgba(232,197,132,.6); }
+.vip-modal button {
+    width: 100%; padding: 14px 0;
+    background: linear-gradient(135deg, #f2d69f 0%, #cfa65c 100%);
+    color: #2b1f06; font-size: 15px; font-weight: 800; border: none;
+    border-radius: 12px; cursor: pointer; letter-spacing: .04em;
+    box-shadow: 0 8px 20px -8px rgba(232,197,132,.5);
+    transition: transform .15s;
+}
+.vip-modal button:active { transform: scale(.97); }
+.vip-modal button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.vip-close {
+    position: absolute; top: 12px; right: 16px;
+    color: var(--faint); font-size: 20px; cursor: pointer;
+    transition: color 0.2s;
+}
+.vip-close:active { color: var(--text); }
+
+#toast{
+    position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));
+    transform:translate(-50%,12px);opacity:0;pointer-events:none;
+    background:rgba(20,24,32,.94);color:var(--text);
+    border:1px solid var(--line-2);border-radius:12px;
+    padding:10px 18px;font-size:12.5px;font-weight:600;letter-spacing:.02em;
+    box-shadow:0 10px 30px -10px rgba(0,0,0,.9);
+    transition:opacity .28s,transform .28s;
+    z-index:9998;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+#loading-overlay{
+    position:fixed;inset:0;z-index:9990;display:none;
+    flex-direction:column;justify-content:center;align-items:center;
+    background:rgba(5,7,10,.82);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    color:var(--text);
+}
+#loading-overlay.show{display:flex}
+.spinner{
+    width:42px;height:42px;border-radius:50%;
+    border:2.5px solid rgba(255,255,255,.1);
+    border-top-color:var(--accent);
+    animation:spin .75s linear infinite;margin-bottom:18px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:12.5px;font-weight:600;color:var(--dim);letter-spacing:.04em}
+</style>
+</head>
+<body data-theme="mint">
+
+<div id="vipMask" class="vip-mask">
+    <div class="vip-modal" style="position:relative;">
+        <div class="vip-close" onclick="hideVipModal()">×</div>
+        <div class="vip-icon">👑</div>
+        <h2>高级功能验证</h2>
+        <p>免费版仅支持<b>普通随机算法</b>与<b>固定36码大底</b>，且最多只能回测 20 期。<br>请输入卡密激活 VIP 解锁全部功能。</p>
+        <input type="text" id="vipCodeInput" placeholder="请输入卡密" autocomplete="off" />
+        <button id="vipActivateBtn">立即激活</button>
+    </div>
+</div>
+
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">AI 正在执行全维度防未来验证…</div>
+</div>
+
+<div id="toast"></div>
+
+<header class="app-header">
+    <div class="brand">
+        <span class="brand-dot"></span>
+        <span class="app-title">智能五级漏斗 v1.5.4</span>
+    </div>
+    <div class="header-right">
+        <button class="theme-quick" onclick="cycleTheme()" aria-label="切换主题"><i></i></button>
+        <div class="app-status" id="header-status">数据未录入</div>
+        <div class="app-status" id="vip-status-top" onclick="showVipModal()">未激活</div>
+    </div>
+</header>
+
+<main class="app-content">
+
+    <!-- ==================== 数据页 ==================== -->
+    <section id="page-data" class="page active">
+        
+        <div class="card latest-card" id="latest-draw-card" style="display:none;">
+            <div class="latest-title">最新开奖展示</div>
+            <div class="latest-period" id="latest-period">--</div>
+            <div class="latest-ball-wrap" id="latest-ball-wrap">
+                <!-- 号球通过 JS 插入 -->
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">历史开奖数据</span>
+                <span class="chip-mint" id="data-count-badge">0 期</span>
+            </div>
+            <textarea id="history" oninput="onHistoryInput()" placeholder="每行一条，格式：期号:号码&#10;例：&#10;2026001:29&#10;2026002:22"></textarea>
+            <div class="quick-add-box">
+                <input type="text" id="newRecord" placeholder="如: 2026003:09" />
+                <button type="button" onclick="appendRecord()">追加</button>
+            </div>
+            <div class="utils-bar">
+                <button type="button" class="btn-save" onclick="saveData(true)">保存记录</button>
+                <button type="button" class="btn-clear" onclick="clearData()">清空重置</button>
+            </div>
+        </div>
+        <div class="hint" style="padding:0 6px;">号码范围为 1–49，每行一条，系统会实时自动保存到本地，防止意外丢失。</div>
+    </section>
+
+    <!-- ==================== 参数页 ==================== -->
+    <section id="page-config" class="page">
+
+        <div class="card" id="theme-card">
+            <div class="card-header"><span class="card-title">外观主题</span></div>
+            <div class="theme-grid">
+                <button class="theme-opt" data-theme="mint" onclick="setTheme('mint')">
+                    <span class="theme-dot" style="--d:#4ee0c1"></span><span>薄荷青</span>
+                </button>
+                <button class="theme-opt" data-theme="gold" onclick="setTheme('gold')">
+                    <span class="theme-dot" style="--d:#e8c584"></span><span>黑金</span>
+                </button>
+                <button class="theme-opt" data-theme="ice" onclick="setTheme('ice')">
+                    <span class="theme-dot" style="--d:#7db4ff"></span><span>冰蓝</span>
+                </button>
+                <button class="theme-opt" data-theme="violet" onclick="setTheme('violet')">
+                    <span class="theme-dot" style="--d:#b39bff"></span><span>霓虹紫</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">维度过滤</span></div>
+            <div class="filter-row">
+                <div class="filter-label-box">
+                    <div class="toggle-switch" onclick="toggleCheck('swNum', false)">
+                        <input type="checkbox" id="swNum" checked onchange="toggleSwitch()"><span class="slider"></span>
+                    </div>
+                    <div class="filter-label">纯号大底</div>
+                </div>
+                <div class="filter-inputs" id="boxNum">
+                    <span>近</span><input type="number" id="numPeriod" value="100" onchange="saveData(false)" />
+                    <span>期 杀</span><input type="number" id="killNumCount" class="kill-input" value="13" min="1" max="20" onchange="saveData(false)" /><span>码</span>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-label-box">
+                    <div class="toggle-switch" onclick="toggleCheck('swZ', true)">
+                        <input type="checkbox" id="swZ" onchange="toggleSwitch()"><span class="slider"></span>
+                    </div>
+                    <div class="filter-label">生肖过滤 <span style="font-size:10px;color:var(--gold);">VIP</span></div>
+                </div>
+                <div class="filter-inputs disabled" id="boxZ">
+                    <span>近</span><input type="number" id="zPeriod" value="50" onchange="saveData(false)" />
+                    <span>期 杀</span><input type="number" id="killZCount" class="kill-input" value="2" min="1" max="10" onchange="saveData(false)" /><span>肖</span>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-label-box">
+                    <div class="toggle-switch" onclick="toggleCheck('swT', true)">
+                        <input type="checkbox" id="swT" onchange="toggleSwitch()"><span class="slider"></span>
+                    </div>
+                    <div class="filter-label">尾数过滤 <span style="font-size:10px;color:var(--gold);">VIP</span></div>
+                </div>
+                <div class="filter-inputs disabled" id="boxT">
+                    <span>近</span><input type="number" id="tPeriod" value="30" onchange="saveData(false)" />
+                    <span>期 杀</span><input type="number" id="killTCount" class="kill-input" value="2" min="1" max="8" onchange="saveData(false)" /><span>尾</span>
+                </div>
+            </div>
+            <div class="filter-row">
+                <div class="filter-label-box">
+                    <div class="toggle-switch" onclick="toggleCheck('swC', true)">
+                        <input type="checkbox" id="swC" onchange="toggleSwitch()"><span class="slider"></span>
+                    </div>
+                    <div class="filter-label">波色过滤 <span style="font-size:10px;color:var(--gold);">VIP</span></div>
+                </div>
+                <div class="filter-inputs disabled" id="boxC">
+                    <span>近</span><input type="number" id="cPeriod" value="50" onchange="saveData(false)" />
+                    <span>期 杀</span><input type="number" id="killCCount" class="kill-input" value="1" min="1" max="5" onchange="saveData(false)" /><span>色</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">核心算法模型</span>
+                <span class="chip-mint">20 种策略</span>
+            </div>
+            <select id="algoSelect" onchange="onAlgoChange()">
+                <option value="free_random" selected>普通随机算法优选（系统匹配低胜率）</option>
+                <option value="automl">20 大算法自动优选（VIP）</option>
+                <option value="stats">1. 传统频次统计（VIP）</option>
+                <option value="markov">2. 马尔可夫链转移（VIP）</option>
+                <option value="knn">3. KNN 最近邻（VIP）</option>
+                <option value="missing">4. 遗漏极值探底（VIP）</option>
+                <option value="ma">5. 移动平均线（VIP）</option>
+                <option value="fibonacci">6. 斐波那契权重（VIP）</option>
+                <option value="history_repeat">7. 历史重演匹配（VIP）</option>
+                <option value="prime">8. 高频质数捕获（VIP）</option>
+                <option value="even">9. 高频偶数聚类（VIP）</option>
+                <option value="oscillator">10. 震荡反转 RSI（VIP）</option>
+                <option value="golden">11. 黄金分割率（VIP）</option>
+                <option value="zone">12. 区间震荡法（VIP）</option>
+                <option value="reverse">13. 冷热反转极值（VIP）</option>
+                <option value="prev_tail">14. 上期尾数衍生（VIP）</option>
+                <option value="sum_shift">15. 和值偏移追踪（VIP）</option>
+                <option value="macd">16. MACD 底背离（VIP）</option>
+                <option value="boll">17. 布林超跌反弹（VIP）</option>
+                <option value="rsv">18. RSV 极值反转（VIP）</option>
+                <option value="mama">19. 多周期均线 30/60（VIP）</option>
+                <option value="osc">20. OSC 动能柱状（VIP）</option>
+            </select>
+            <div class="hint">免费版仅支持「普通随机算法」。升级 VIP 解锁全部 20 种高级算法及高阶指标。</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">强制控盘锁定 <span style="font-size:10px;color:var(--gold);">VIP</span></span></div>
+            <div class="filter-row" style="align-items:flex-start;">
+                <div>
+                    <div class="filter-label">启用强制控盘</div>
+                    <div class="hint" style="margin-top:5px;max-width:210px;">关闭：过滤后剩多少出多少。<br>开启：强制锁定为指定数量。</div>
+                </div>
+                <div class="toggle-switch" style="width:44px;height:25px;margin-top:2px;" onclick="toggleCheck('swAutoKill', true)">
+                    <input type="checkbox" id="swAutoKill" onchange="toggleSwitch()"><span class="slider"></span>
+                </div>
+            </div>
+            <div class="filter-row" id="target-count-row" style="opacity:.3;pointer-events:none;">
+                <div class="filter-label">目标锁定数量</div>
+                <div class="filter-inputs">
+                    <input type="number" id="targetOutputCount" class="pink" value="36" min="5" max="45" onchange="saveData(false)" />
+                    <span>码</span>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="action-btn" onclick="runBacktest()">运行预测 + 真实回测</button>
+    </section>
+
+    <!-- ==================== 预测页 ==================== -->
+    <section id="page-predict" class="page">
+        <div id="predict-empty" class="empty-state">
+            <div class="empty-icon">◎</div>
+            <div class="empty-title">还没有预测结果</div>
+            <div class="empty-hint">请先到「参数」页点击运行</div>
+            <button type="button" class="action-btn small" onclick="switchPage('config')">去设置参数</button>
+        </div>
+
+        <div id="predict-result" style="display:none;">
+            <div class="ai-strategy-box">
+                <div class="ai-title">
+                    <div>AI 战术决策剖析</div>
+                    <div class="ai-mode-tag" id="ai-mode-tag">算法优选</div>
+                </div>
+                <div class="ai-desc" id="ai-desc-text">正在生成…</div>
+            </div>
+
+            <!-- KDJ 与 高级指标 -->
+            <div class="tech-panel">
+                <div class="tech-header">
+                    <div>KDJ 支撑压力位 · 技术面</div>
+                    <div id="kdj-signal"></div>
+                </div>
+                <div class="tech-values">
+                    <div class="tech-k">K<b id="kdj-k-val">--</b></div>
+                    <div class="tech-d">D<b id="kdj-d-val">--</b></div>
+                    <div class="tech-j">J<b id="kdj-j-val">--</b></div>
+                </div>
+                <div id="tech-alert-box"></div>
+
+                <!-- 新增高级指标展示区 -->
+                <div class="adv-indicator-box">
+                    <div class="adv-indicator-title">
+                        <span>高级量化指标矩阵</span>
+                        <span style="color:var(--gold);" id="adv-vip-hint"></span>
+                    </div>
+                    <div class="adv-indicator-grid" id="adv-indicator-grid">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="funnel-title">
+                <div>智能漏斗过滤过程</div>
+                <div class="final-count-tag" id="final-count">--</div>
+            </div>
+
+            <div class="funnel-step step1" id="step1-box">
+                <div class="funnel-step-title"><div>1 · 算法核心大底</div><div id="step1-count"></div></div>
+                <div class="funnel-nums" id="step1-nums"></div>
+            </div>
+            <div class="funnel-step step2" id="step2-box" style="display:none;">
+                <div class="funnel-step-title"><div>2 · 生肖过滤</div><div id="step2-count"></div></div>
+                <div class="funnel-nums" id="step2-nums"></div>
+            </div>
+            <div class="funnel-step step3" id="step3-box" style="display:none;">
+                <div class="funnel-step-title"><div>3 · 尾数过滤</div><div id="step3-count"></div></div>
+                <div class="funnel-nums" id="step3-nums"></div>
+            </div>
+            <div class="funnel-step step4" id="step4-box" style="display:none;">
+                <div class="funnel-step-title"><div>4 · 波色过滤</div><div id="step4-count"></div></div>
+                <div class="funnel-nums" id="step4-nums"></div>
+            </div>
+            <div class="funnel-step step5" id="step5-box" style="display:none;">
+                <div class="funnel-step-title"><div>5 · 智能补刀 / 微调</div><div id="step5-count"></div></div>
+                <div class="funnel-nums" id="step5-nums"></div>
+            </div>
+
+            <div class="final-result-box">
+                <div class="final-title">最终出票大包围 · 点击球可微调</div>
+                <div class="report-info" id="report-info-box">
+                    <div>预测期号：<span id="lbl-predict-period">--</span></div>
+                    <div>生成时间：<span id="lbl-gen-time">--</span></div>
+                    <div>回测表现：近 <span id="lbl-bt-total">--</span> 期，胜率 <span id="lbl-bt-rate">--</span>，最大连黑 <span id="lbl-bt-black">--</span> 期</div>
+                    <div>过滤策略：<span id="lbl-strategy">--</span></div>
+                </div>
+                <div class="final-nums" id="final-result-display"></div>
+                <button type="button" class="copy-btn" onclick="copyFinal()">复制当前出票号码</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 回测页 ==================== -->
+    <section id="page-backtest" class="page">
+        <div class="card">
+            <div class="bt-title-row">
+                <span class="card-title">历史策略回测</span>
+                <select id="validatePeriod" onchange="onValidatePeriodChange()">
+                    <option value="10">最近 10 期</option>
+                    <option value="20" selected>最近 20 期</option>
+                    <option value="30">最近 30 期 (VIP)</option>
+                    <option value="50">最近 50 期 (VIP)</option>
+                    <option value="100">最近 100 期 (VIP)</option>
+                    <option value="200">最近 200 期 (VIP)</option>
+                </select>
+            </div>
+
+            <div class="bt-stats">
+                <div class="ring-wrap">
+                    <svg class="ring" viewBox="0 0 100 100">
+                        <circle class="ring-bg" cx="50" cy="50" r="42"/>
+                        <circle class="ring-fg" id="ring-fg" cx="50" cy="50" r="42"/>
+                    </svg>
+                    <div class="ring-center">
+                        <div class="ring-val" id="bt-hit-rate">--</div>
+                        <div class="ring-lbl">命中率</div>
+                    </div>
+                </div>
+                <div class="bt-side">
+                    <div class="bt-item">
+                        <div class="bt-val" id="bt-hit-count">--</div>
+                        <div class="bt-lbl">命中 / 总期数</div>
+                    </div>
+                    <div class="bt-item">
+                        <div class="bt-val is-red" id="bt-max-black">--</div>
+                        <div class="bt-lbl">最大连黑</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="trend-wrap">
+                <div class="trend-title"><span>逐期命中趋势</span><span>左旧 → 右新</span></div>
+                <div class="trend-bar" id="trend-bar"></div>
+            </div>
+
+            <div class="hint">真实回测：每期只用该期之前的数据选算法、做过滤，绝不使用未来信息。</div>
+        </div>
+
+        <div class="card" id="algo-rank-box">
+            <div class="card-header"><span class="card-title">算法表现排行榜（全量测算）</span></div>
+            <div class="algo-rank-grid">
+                <div class="algo-rank-col" id="rank-num-col" style="display:none;">
+                    <div class="algo-rank-title">纯号算法</div>
+                    <div id="rank-num-list"></div>
+                </div>
+                <div class="algo-rank-col" id="rank-z-col" style="display:none;">
+                    <div class="algo-rank-title">生肖算法</div>
+                    <div id="rank-z-list"></div>
+                </div>
+                <div class="algo-rank-col" id="rank-t-col" style="display:none;">
+                    <div class="algo-rank-title">尾数算法</div>
+                    <div id="rank-t-list"></div>
+                </div>
+                <div class="algo-rank-col" id="rank-c-col" style="display:none;">
+                    <div class="algo-rank-title">波色算法</div>
+                    <div id="rank-c-list"></div>
+                </div>
+            </div>
+            <div class="hint" id="rank-hint" style="display:none; color:var(--gold); margin-top:10px;">提示：命中率 ≥ 80% 的策略为 VIP 专享。当前免费版仅支持“普通随机算法”。</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">逐期明细</span></div>
+            <div class="bt-list" id="bt-list-container">
+                <div class="empty-state" style="padding:34px 10px;">
+                    <div class="empty-hint">暂无回测数据，请先运行一次</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<nav class="bottom-nav">
+    <button data-page="data" class="active" onclick="switchPage('data')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="7.2" ry="3"/>
+            <path d="M4.8 5v7c0 1.66 3.22 3 7.2 3s7.2-1.34 7.2-3V5"/>
+            <path d="M4.8 12v7c0 1.66 3.22 3 7.2 3s7.2-1.34 7.2-3v-7"/>
+        </svg>
+        <span>数据</span>
+    </button>
+    <button data-page="config" onclick="switchPage('config')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <line x1="3.5" y1="7.5" x2="20.5" y2="7.5"/>
+            <circle cx="9" cy="7.5" r="2.6" fill="currentColor" stroke="none"/>
+            <line x1="3.5" y1="16.5" x2="20.5" y2="16.5"/>
+            <circle cx="15" cy="16.5" r="2.6" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>参数</span>
+    </button>
+    <button data-page="predict" onclick="switchPage('predict')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <circle cx="12" cy="12" r="8"/>
+            <circle cx="12" cy="12" r="3.4"/>
+            <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        <span>预测</span>
+    </button>
+    <button data-page="backtest" onclick="switchPage('backtest')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3.5" y1="20" x2="20.5" y2="20"/>
+            <rect x="5.5" y="12" width="3.4" height="8" rx="1"/>
+            <rect x="10.3" y="7.5" width="3.4" height="12.5" rx="1"/>
+            <rect x="15.1" y="14.5" width="3.4" height="5.5" rx="1"/>
+        </svg>
+        <span>回测</span>
+    </button>
+</nav>
+
+<script>
+/* ================= 基础常量 ================= */
+var zodiacToNumbers = {
+    "鼠": [7, 19, 31, 43], "牛": [6, 18, 30, 42], "虎": [5, 17, 29, 41],
+    "兔": [4, 16, 28, 40], "龙": [3, 15, 27, 39], "蛇": [2, 14, 26, 38],
+    "马": [1, 13, 25, 37, 49], "羊": [12, 24, 36, 48], "猴": [11, 23, 35, 47],
+    "鸡": [10, 22, 34, 46], "狗": [9, 21, 33, 45], "猪": [8, 20, 32, 44]
+};
+var zodiacKeys = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+
+var algoNames = {
+    free_random: '普通随机优选', automl: '20大自动优选',
+    stats: '频次统计', markov: '马尔可夫链', knn: 'KNN最近邻',
+    missing: '遗漏极值', ma: '移动平均线', fibonacci: '斐波那契',
+    history_repeat: '历史重演', prime: '质数捕获', even: '偶数聚类', oscillator: '震荡反转',
+    golden: '黄金分割', zone: '区间震荡', reverse: '冷热反转', prev_tail: '尾数衍生', sum_shift: '和值偏移',
+    macd: 'MACD背离', boll: '布林通道', rsv: 'RSV数列', mama: '多周期均线', osc: 'OSC柱状图'
+};
+
+var colorParityMap = {
+    "红单": [1, 7, 13, 19, 23, 29, 35, 45],
+    "红双": [2, 8, 12, 18, 24, 30, 34, 40, 46],
+    "蓝单": [3, 9, 15, 25, 31, 37, 41, 47],
+    "蓝双": [4, 10, 14, 20, 26, 36, 42, 48],
+    "绿单": [5, 11, 17, 21, 27, 33, 39, 43, 49],
+    "绿双": [6, 16, 22, 28, 32, 38, 44]
+};
+var colorKeys = ["红单", "红双", "蓝单", "蓝双", "绿单", "绿双"];
+
+var redNums = colorParityMap["红单"].concat(colorParityMap["红双"]);
+var blueNums = colorParityMap["蓝单"].concat(colorParityMap["蓝双"]);
+var greenNums = colorParityMap["绿单"].concat(colorParityMap["绿双"]);
+
+function getZodiac(n) {
+    for (var key in zodiacToNumbers) {
+        if (zodiacToNumbers[key].indexOf(n) > -1) return key;
+    }
+    return "";
+}
+function getColorParity(n) {
+    for (var key in colorParityMap) {
+        if (colorParityMap[key].indexOf(n) > -1) return key;
+    }
+    return "";
+}
+
+/* ================= 全局状态 ================= */
+var original_array = [];
+var final_numbers_array = [];
+var currentPredictPeriod = "";
+var currentGenTime = "";
+var currentStrategyStr = "";
+var currentBtTotal = "0";
+var currentBtRate = "0.0%";
+var currentBtMaxBlack = "0";
+
+var autoMlWinners = { num: 'stats', z: 'stats', t: 'stats', c: 'stats' };
+
+/* ================= VIP 网络验证控制 ================= */
+const API_URL = 'https://winter-night-ffc5.vivibeauty01.workers.dev'; 
+
+function checkVipStatus() {
+    var token = localStorage.getItem('hk6_vip_token');
+    var expire = localStorage.getItem('hk6_vip_expire');
+    
+    if (!token || !expire) return false;
+    if (Date.now() > parseInt(expire, 10)) {
+        localStorage.removeItem('hk6_vip_token');
+        localStorage.removeItem('hk6_vip_expire');
+        return false;
+    }
+    return true;
+}
+
+function showVipModal() {
+    document.getElementById('vipMask').classList.add('show');
+}
+
+function hideVipModal() {
+    document.getElementById('vipMask').classList.remove('show');
+}
+
+function updateVipUI() {
+    var vip = checkVipStatus();
+    var topBadge = document.getElementById('vip-status-top');
+    if (vip) {
+        topBadge.innerText = 'VIP会员';
+        topBadge.classList.add('vip');
+    } else {
+        topBadge.innerText = '未激活';
+        topBadge.classList.remove('vip');
+    }
+}
+
+function onAlgoChange() {
+    var sel = document.getElementById('algoSelect');
+    if (!checkVipStatus() && sel.value !== 'free_random') {
+        sel.value = 'free_random'; // 免费版强制锁定
+        saveData(false);
+        showVipModal();
+        return;
+    }
+    saveData(false);
+}
+
+// 拦截免费用户选超过 20 期的回测
+function onValidatePeriodChange() {
+    var sel = document.getElementById('validatePeriod');
+    if (!checkVipStatus() && parseInt(sel.value) > 20) {
+        sel.value = '20'; // 强制退回到 20 期
+        saveData(false);
+        showVipModal();
+        return;
+    }
+    saveData(false);
+}
+
+/* ================= 主题 ================= */
+var THEMES = ['mint', 'gold', 'ice', 'violet'];
+var THEME_NAMES = { mint: '薄荷青', gold: '黑金', ice: '冰蓝', violet: '霓虹紫' };
+
+function setTheme(name, silent) {
+    if (THEMES.indexOf(name) === -1) name = 'mint';
+    document.body.setAttribute('data-theme', name);
+    try { localStorage.setItem('funnel_theme', name); } catch (e) {}
+    var opts = document.querySelectorAll('.theme-opt');
+    for (var i = 0; i < opts.length; i++) {
+        opts[i].classList.toggle('active', opts[i].getAttribute('data-theme') === name);
+    }
+    if (!silent) toast('已切换 · ' + THEME_NAMES[name]);
+}
+
+function cycleTheme() {
+    var cur = document.body.getAttribute('data-theme') || 'mint';
+    var idx = THEMES.indexOf(cur);
+    setTheme(THEMES[(idx + 1) % THEMES.length]);
+}
+
+/* ================= toast ================= */
+var toastTimer = null;
+function toast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function() { el.classList.remove('show'); }, 1600);
+}
+
+/* ================= 页面切换 ================= */
+function switchPage(pageId) {
+    var pages = document.querySelectorAll('.page');
+    for (var i = 0; i < pages.length; i++) {
+        pages[i].classList.toggle('active', pages[i].id === 'page-' + pageId);
+    }
+    var navs = document.querySelectorAll('.bottom-nav button');
+    for (var j = 0; j < navs.length; j++) {
+        navs[j].classList.toggle('active', navs[j].getAttribute('data-page') === pageId);
+    }
+}
+
+/* ================= 初始化 / 存储 ================= */
+window.onload = function() {
+    try {
+        var savedTheme = localStorage.getItem('funnel_theme') || 'mint';
+        setTheme(savedTheme, true);
+
+        var map = [
+            ['funnel_sw_num', 'swNum', 'checked'],
+            ['funnel_sw_z', 'swZ', 'checked'],
+            ['funnel_sw_t', 'swT', 'checked'],
+            ['funnel_sw_c', 'swC', 'checked'],
+            ['funnel_sw_kill', 'swAutoKill', 'checked'],
+            ['funnel_algo', 'algoSelect', 'value'],
+            ['funnel_val_period', 'validatePeriod', 'value'],
+            ['funnel_history', 'history', 'value'],
+            ['funnel_p_num', 'numPeriod', 'value'],
+            ['funnel_p_z', 'zPeriod', 'value'],
+            ['funnel_p_t', 'tPeriod', 'value'],
+            ['funnel_p_c', 'cPeriod', 'value'],
+            ['funnel_k_num', 'killNumCount', 'value'],
+            ['funnel_k_z', 'killZCount', 'value'],
+            ['funnel_k_t', 'killTCount', 'value'],
+            ['funnel_k_c', 'killCCount', 'value'],
+            ['funnel_target_out', 'targetOutputCount', 'value']
+        ];
+        for (var i = 0; i < map.length; i++) {
+            var saved = localStorage.getItem(map[i][0]);
+            if (saved !== null) {
+                var el = document.getElementById(map[i][1]);
+                if (map[i][2] === 'checked') el.checked = (saved === 'true');
+                else el.value = saved;
+            }
+        }
+    } catch (e) {}
+
+    // 免费用户强制锁定
+    if (!checkVipStatus()) {
+        document.getElementById('algoSelect').value = 'free_random';
+        document.getElementById('swNum').checked = true;
+        document.getElementById('swZ').checked = false;
+        document.getElementById('swT').checked = false;
+        document.getElementById('swC').checked = false;
+        document.getElementById('swAutoKill').checked = false;
+        
+        var valSel = document.getElementById('validatePeriod');
+        if (parseInt(valSel.value) > 20) valSel.value = '20';
+
+        // 锁死大底 36 码
+        var numP = document.getElementById('numPeriod');
+        var killN = document.getElementById('killNumCount');
+        numP.value = 100;
+        killN.value = 13;
+        numP.setAttribute('readonly', 'readonly');
+        killN.setAttribute('readonly', 'readonly');
+        numP.style.pointerEvents = 'none';
+        killN.style.pointerEvents = 'none';
+    } else {
+        // VIP用户解锁大底修改
+        var numP = document.getElementById('numPeriod');
+        var killN = document.getElementById('killNumCount');
+        numP.removeAttribute('readonly');
+        killN.removeAttribute('readonly');
+        numP.style.pointerEvents = 'auto';
+        killN.style.pointerEvents = 'auto';
+    }
+
+    updateVipUI();
+    updateSwitchUI();
+    updateDataCount();
+    renderLatestDraw();
+    hideVipModal();
+
+    // 绑定卡密激活按钮
+    document.getElementById('vipActivateBtn').addEventListener('click', async function() {
+        var code = document.getElementById('vipCodeInput').value.trim();
+        if (!code) return alert('请输入激活码');
+        
+        var btn = this;
+        var oldText = btn.textContent;
+        btn.textContent = '联网验证中...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(API_URL + '/?key=' + code);
+            const result = await response.json();
+
+            if (result.success) {
+                var expireTime = new Date(result.expire).getTime();
+                localStorage.setItem('hk6_vip_token', code);
+                localStorage.setItem('hk6_vip_expire', expireTime);
+                
+                hideVipModal();
+                updateVipUI();
+                document.getElementById('vipCodeInput').value = '';
+                toast('🎉 激活成功，高级功能已解锁！');
+                setTimeout(function() { location.reload(); }, 1000); // 刷新页面解锁 UI
+            } else {
+                alert('❌ ' + (result.msg || '激活码错误'));
+            }
+        } catch (error) {
+            alert('❌ 网络连接失败，请检查网络或刷新重试');
+        } finally {
+            btn.textContent = oldText;
+            btn.disabled = false;
+        }
+    });
+};
+
+// 增强的数据防丢失
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') saveData(false);
+});
+window.addEventListener('beforeunload', function() {
+    saveData(false);
+});
+
+/* ================= 核心拦截 ================= */
+function toggleCheck(id, requireVip) {
+    var el = document.getElementById(id);
+    if (!el) return;
+
+    var isVip = checkVipStatus();
+
+    if (!isVip && requireVip) {
+        showVipModal();
+        return;
+    }
+
+    if (!isVip && id === 'swNum') {
+        if (el.checked) {
+            toast('免费版仅支持纯号大底，无法关闭');
+            return;
+        }
+    }
+
+    el.checked = !el.checked;
+    if (el.onchange) el.onchange();
+}
+
+function toggleSwitch() {
+    updateSwitchUI();
+    saveData(false);
+}
+
+function updateSwitchUI() {
+    var pairs = [
+        ['swNum', 'boxNum'], ['swZ', 'boxZ'], ['swT', 'boxT'], ['swC', 'boxC']
+    ];
+    for (var i = 0; i < pairs.length; i++) {
+        var sw = document.getElementById(pairs[i][0]);
+        var box = document.getElementById(pairs[i][1]);
+        if (!sw || !box) continue;
+        if (sw.checked) box.classList.remove('disabled');
+        else box.classList.add('disabled');
+    }
+    var tRow = document.getElementById('target-count-row');
+    var killSw = document.getElementById('swAutoKill');
+    if (tRow && killSw) {
+        if (killSw.checked) {
+            tRow.style.opacity = '1';
+            tRow.style.pointerEvents = 'auto';
+        } else {
+            tRow.style.opacity = '0.3';
+            tRow.style.pointerEvents = 'none';
+        }
+    }
+}
+
+function saveData(showAlert) {
+    try {
+        localStorage.setItem('funnel_sw_num', document.getElementById('swNum').checked);
+        localStorage.setItem('funnel_sw_z', document.getElementById('swZ').checked);
+        localStorage.setItem('funnel_sw_t', document.getElementById('swT').checked);
+        localStorage.setItem('funnel_sw_c', document.getElementById('swC').checked);
+        localStorage.setItem('funnel_sw_kill', document.getElementById('swAutoKill').checked);
+        localStorage.setItem('funnel_algo', document.getElementById('algoSelect').value);
+        localStorage.setItem('funnel_val_period', document.getElementById('validatePeriod').value);
+
+        localStorage.setItem('funnel_history', document.getElementById('history').value);
+        localStorage.setItem('funnel_p_num', document.getElementById('numPeriod').value);
+        localStorage.setItem('funnel_p_z', document.getElementById('zPeriod').value);
+        localStorage.setItem('funnel_p_t', document.getElementById('tPeriod').value);
+        localStorage.setItem('funnel_p_c', document.getElementById('cPeriod').value);
+        localStorage.setItem('funnel_k_num', document.getElementById('killNumCount').value);
+        localStorage.setItem('funnel_k_z', document.getElementById('killZCount').value);
+        localStorage.setItem('funnel_k_t', document.getElementById('killTCount').value);
+        localStorage.setItem('funnel_k_c', document.getElementById('killCCount').value);
+        localStorage.setItem('funnel_target_out', document.getElementById('targetOutputCount').value);
+
+        if (showAlert) toast('已保存到本地');
+    } catch (e) {}
+    updateSwitchUI();
+}
+
+function clearData() {
+    if (confirm("确定要清空所有开奖数据和设置吗？")) {
+        var vipToken = localStorage.getItem('hk6_vip_token');
+        var vipExpire = localStorage.getItem('hk6_vip_expire');
+        localStorage.clear();
+        if (vipToken) localStorage.setItem('hk6_vip_token', vipToken);
+        if (vipExpire) localStorage.setItem('hk6_vip_expire', vipExpire);
+        location.reload();
+    }
+}
+
+/* ================= 数据录入 & 最新开奖展示 ================= */
+function onHistoryInput() {
+    saveData(false);
+    updateDataCount();
+    renderLatestDraw();
+}
+
+function updateDataCount() {
+    var text = document.getElementById('history').value;
+    var count = 0;
+    var lines = text.split(/\n/);
+    for (var i = 0; i < lines.length; i++) {
+        var m = lines[i].match(/\d+/g);
+        if (m && m.length > 0) {
+            var n = parseInt(m[m.length - 1]);
+            if (n >= 1 && n <= 49) count++;
+        }
+    }
+    document.getElementById('data-count-badge').innerText = count + " 期";
+    var status = document.getElementById('header-status');
+    status.innerText = count === 0 ? "数据未录入" : ("已录入 " + count + " 期");
+}
+
+function renderLatestDraw() {
+    var text = document.getElementById('history').value;
+    var lines = text.split(/\n/);
+    var latestNum = null;
+    var latestPeriod = "";
+    
+    for (var i = lines.length - 1; i >= 0; i--) {
+        var line = lines[i].trim();
+        if (!line) continue;
+        var matches = line.match(/\d+/g);
+        if (matches && matches.length > 0) {
+            var n = parseInt(matches[matches.length - 1]);
+            if (n >= 1 && n <= 49) {
+                latestNum = n;
+                latestPeriod = line.replace(/\d+$/, '').replace(/[:：\s]/g, '').trim();
+                if (!latestPeriod) latestPeriod = "最新一期";
+                break;
+            }
+        }
+    }
+    
+    var card = document.getElementById('latest-draw-card');
+    var ballWrap = document.getElementById('latest-ball-wrap');
+    var periodEl = document.getElementById('latest-period');
+    
+    if (latestNum === null) {
+        card.style.display = 'none';
+        return;
+    }
+    
+    card.style.display = 'flex';
+    periodEl.innerText = latestPeriod;
+    
+    var colorClass = "";
+    if (redNums.indexOf(latestNum) > -1) colorClass = "ball-red";
+    else if (blueNums.indexOf(latestNum) > -1) colorClass = "ball-blue";
+    else if (greenNums.indexOf(latestNum) > -1) colorClass = "ball-green";
+    
+    var z = getZodiac(latestNum);
+    var numStr = latestNum < 10 ? "0" + latestNum : latestNum.toString();
+    
+    var html = "<div class='num-badge " + colorClass + "'>";
+    html += "<div class='ball-num'>" + numStr + "</div>";
+    html += "<div class='ball-zodiac'>" + z + "</div>";
+    html += "</div>";
+    
+    ballWrap.innerHTML = html;
+}
+
+function appendRecord() {
+    var newVal = document.getElementById('newRecord').value.trim();
+    if (!newVal) return;
+    var hisArea = document.getElementById('history');
+    if (hisArea.value.trim() !== "") hisArea.value = hisArea.value.trim() + "\n" + newVal;
+    else hisArea.value = newVal;
+    document.getElementById('newRecord').value = "";
+    saveData(false);
+    updateDataCount();
+    renderLatestDraw();
+    
+    var btn = document.querySelector('.quick-add-box button');
+    btn.innerText = "已追加";
+    setTimeout(function() { btn.innerText = "追加"; }, 1200);
+}
+
+/* ================= 号码渲染 ================= */
+function renderNumbers() {
+    var wrap = document.getElementById('final-result-display');
+    var sorted = original_array.slice().sort(function(a, b) { return a - b; });
+    var html = "";
+
+    for (var i = 0; i < sorted.length; i++) {
+        var num = sorted[i];
+        var colorClass = "";
+        if (redNums.indexOf(num) > -1) colorClass = "ball-red";
+        else if (blueNums.indexOf(num) > -1) colorClass = "ball-blue";
+        else if (greenNums.indexOf(num) > -1) colorClass = "ball-green";
+
+        var z = getZodiac(num);
+        var numStr = num < 10 ? "0" + num : num.toString();
+
+        html += "<div class='num-badge " + colorClass + "' data-num='" + num + "' onclick='toggleNumber(" + num + ")'>";
+        html += "<div class='ball-num'>" + numStr + "</div>";
+        html += "<div class='ball-zodiac'>" + z + "</div>";
+        html += "</div>";
+    }
+    wrap.innerHTML = html;
+    syncBallStates();
+    updateFinalCount();
+}
+
+function syncBallStates() {
+    var balls = document.querySelectorAll('#final-result-display .num-badge');
+    for (var i = 0; i < balls.length; i++) {
+        var n = parseInt(balls[i].getAttribute('data-num'));
+        balls[i].classList.toggle('removed', final_numbers_array.indexOf(n) === -1);
+    }
+}
+
+function toggleNumber(num) {
+    var idx = final_numbers_array.indexOf(num);
+    if (idx > -1) final_numbers_array.splice(idx, 1);
+    else final_numbers_array.push(num);
+
+    var el = document.querySelector('#final-result-display .num-badge[data-num="' + num + '"]');
+    if (el) {
+        el.classList.toggle('removed', final_numbers_array.indexOf(num) === -1);
+    }
+    updateFinalCount();
+}
+
+function updateFinalCount() {
+    document.getElementById('final-count').innerText = "锁定 " + final_numbers_array.length + " 码";
+}
+
+async function copyFinal() {
+    if (final_numbers_array.length === 0) {
+        toast('没有选中任何号码');
+        return;
+    }
+    final_numbers_array.sort(function(a, b) { return a - b; });
+
+    var text = "【AI战术五级漏斗】出票报告\n";
+    text += "预测期号：" + currentPredictPeriod + "\n";
+    text += "生成时间：" + currentGenTime + "\n";
+    text += "回测表现：近 " + currentBtTotal + " 期，胜率 " + currentBtRate + "，最大连黑 " + currentBtMaxBlack + " 期\n";
+    text += "过滤策略：" + currentStrategyStr + "\n";
+    text += "------------------------\n";
+    text += "最终大包围 (共" + final_numbers_array.length + "码):\n" + final_numbers_array.join(", ");
+
+    try {
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            toast('✅ 复制实战报告成功');
+        } else {
+            var textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '0';
+            textarea.style.left = '0';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            document.body.focus(); 
+            window.scrollTo(0, window.scrollY);
+            toast('✅ 复制实战报告成功');
+        }
+    } catch (err) {
+        toast('复制失败，请长按选择');
+    }
+}
+
+/* ================= 高级指标计算辅助函数 ================= */
+function calcMA(arr, n) {
+    if (arr.length < n) return arr[arr.length-1] || 25;
+    var sum = 0;
+    for (var i = arr.length - n; i < arr.length; i++) sum += arr[i];
+    return sum / n;
+}
+function calcStd(arr, n, mean) {
+    if (arr.length < n) return 10;
+    var sum = 0;
+    for (var i = arr.length - n; i < arr.length; i++) sum += Math.pow(arr[i] - mean, 2);
+    return Math.sqrt(sum / n);
+}
+function calcEMA(arr, n) {
+    if (arr.length === 0) return 25;
+    var k = 2 / (n + 1);
+    var ema = arr[0];
+    for (var i = 1; i < arr.length; i++) ema = arr[i] * k + ema * (1 - k);
+    return ema;
+}
+
+/* ================= 20 大算法核心 ================= */
+function getAlgoKill(seq, algoType, period, killCount, categoryType) {
+    var nSeq = seq.slice(-Math.max(period, 60)); // 确保数据足够计算高级指标
+    var freq = {};
+    var allKeys = [];
+
+    if (categoryType === 'zodiac') allKeys = zodiacKeys;
+    else if (categoryType === 'tail') allKeys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    else if (categoryType === 'color') allKeys = colorKeys;
+    else if (categoryType === 'num') { for (var k = 1; k <= 49; k++) allKeys.push(k); }
+
+    for (var i = 0; i < allKeys.length; i++) freq[allKeys[i]] = 0;
+    var seqNums = nSeq.map(function(x){ return typeof x === 'number' ? x : 25; }); // 兜底
+    for (var k = 0; k < seqNums.length; k++) {
+        if (freq[seqNums[k]] !== undefined) freq[seqNums[k]]++;
+    }
+
+    var scores = {};
+    for (var i = 0; i < allKeys.length; i++) scores[allKeys[i]] = 0;
+
+    var lastState = seqNums[seqNums.length - 1] || 25;
+    var half = Math.floor(period / 2);
+    var primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+
+    if (algoType === 'stats') {
+        for (var i = 0; i < allKeys.length; i++) scores[allKeys[i]] = freq[allKeys[i]];
+    } else if (algoType === 'markov') {
+        var trans = {};
+        for (var k = 0; k < seqNums.length - 1; k++) {
+            var prev = seqNums[k];
+            var next = seqNums[k + 1];
+            if (!trans[prev]) trans[prev] = {};
+            trans[prev][next] = (trans[prev][next] || 0) + 1;
+        }
+        if (trans[lastState]) {
+            for (var key in trans[lastState]) {
+                if (scores[key] !== undefined) scores[key] = trans[lastState][key] * 10;
+            }
+        } else {
+            for (var i = 0; i < allKeys.length; i++) scores[allKeys[i]] = freq[allKeys[i]];
+        }
+    } else if (algoType === 'knn') {
+        var dists = [];
+        for (var i = 0; i < seqNums.length - 1; i++) {
+            dists.push({ d: Math.abs(seqNums[i] - lastState), next: seqNums[i + 1] });
+        }
+        dists.sort(function(a, b) { return a.d - b.d; });
+        for (var i = 0; i < Math.min(8, dists.length); i++) {
+            if (scores[dists[i].next] !== undefined) scores[dists[i].next] += 5;
+        }
+    } else if (algoType === 'missing') {
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = allKeys[i];
+            var miss = period;
+            for (var j = seqNums.length - 1; j >= 0; j--) {
+                if (seqNums[j] == item) { miss = seqNums.length - 1 - j; break; }
+            }
+            scores[item] = miss;
+        }
+    } else if (algoType === 'ma') {
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = allKeys[i];
+            var shortFreq = 0, longFreq = 0;
+            for (var j = 0; j < seqNums.length; j++) {
+                if (seqNums[j] == item) {
+                    longFreq++;
+                    if (j >= seqNums.length - half) shortFreq++;
+                }
+            }
+            scores[item] = shortFreq * 2 + longFreq;
+        }
+    } else if (algoType === 'fibonacci') {
+        var fib = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+        for (var j = 0; j < seqNums.length; j++) {
+            var item = seqNums[j];
+            var idxFromEnd = seqNums.length - 1 - j;
+            var weight = fib[Math.min(idxFromEnd, fib.length - 1)];
+            if (scores[item] !== undefined) scores[item] += weight;
+        }
+    } else if (algoType === 'history_repeat') {
+        var prevState = seqNums[seqNums.length - 2];
+        if (prevState !== undefined) {
+            for (var j = 0; j < seqNums.length - 1; j++) {
+                if (seqNums[j] == prevState) {
+                    if (scores[seqNums[j + 1]] !== undefined) scores[seqNums[j + 1]] += 10;
+                }
+            }
+        }
+    } else if (algoType === 'prime') {
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = allKeys[i];
+            if (primes.indexOf(parseInt(item)) > -1) scores[item] = freq[item] * 2;
+            else scores[item] = freq[item];
+        }
+    } else if (algoType === 'even') {
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = allKeys[i];
+            if (parseInt(item) % 2 === 0) scores[item] = freq[item] * 2;
+            else scores[item] = freq[item];
+        }
+    } else if (algoType === 'oscillator') {
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = allKeys[i];
+            var f1 = 0, f2 = 0;
+            for (var j = 0; j < half; j++) { if (seqNums[j] == item) f1++; }
+            for (var j = half; j < seqNums.length; j++) { if (seqNums[j] == item) f2++; }
+            scores[item] = f1 - f2;
+        }
+    } else if (algoType === 'golden') {
+        var target = 0.618 * 49;
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            scores[item] = -Math.abs(item - target) + freq[item];
+        }
+    } else if (algoType === 'zone') {
+        var zoneMap = {0:0, 1:0, 2:0, 3:0};
+        for (var k = 0; k < seqNums.length; k++) {
+            var n = parseInt(seqNums[k]);
+            var z = Math.floor((n-1)/12.25);
+            if (zoneMap[z] !== undefined) zoneMap[z]++;
+        }
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            var z = Math.floor((item-1)/12.25);
+            scores[item] = zoneMap[z] || 0;
+        }
+    } else if (algoType === 'reverse') {
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = allKeys[i];
+            var miss = period;
+            for (var j = seqNums.length - 1; j >= 0; j--) {
+                if (seqNums[j] == item) { miss = seqNums.length - 1 - j; break; }
+            }
+            scores[item] = miss > 20 ? miss * 2 : 0;
+        }
+    } else if (algoType === 'prev_tail') {
+        var prevN = parseInt(seqNums[seqNums.length - 1]) || 0;
+        var tail = prevN % 10;
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            if (item % 10 === tail) scores[item] = freq[item] * 3;
+            else scores[item] = freq[item];
+        }
+    } else if (algoType === 'sum_shift') {
+        var sumPrev = 0;
+        for (var j = Math.max(0, seqNums.length - 3); j < seqNums.length; j++) sumPrev += parseInt(seqNums[j]);
+        var avg = sumPrev / Math.min(3, seqNums.length);
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            scores[item] = -Math.abs(item - avg) + freq[item];
+        }
+    } 
+    /* ======== 新增 5 大高级指标算法 ======== */
+    else if (algoType === 'macd') {
+        var ema12 = calcEMA(seqNums, 12);
+        var ema26 = calcEMA(seqNums, 26);
+        var dif = ema12 - ema26;
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            if (dif < 0) { scores[item] = item < 25 ? 100 - item : 0; } 
+            else { scores[item] = item > 25 ? item : 0; }
+        }
+    } else if (algoType === 'boll') {
+        var ma20 = calcMA(seqNums, 20);
+        var std20 = calcStd(seqNums, 20, ma20);
+        var upper = ma20 + 2 * std20;
+        var lower = ma20 - 2 * std20;
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            if (lastState > upper) { scores[item] = item; } 
+            else if (lastState < lower) { scores[item] = Math.abs(item - ma20); } 
+            else { scores[item] = freq[item]; }
+        }
+    } else if (algoType === 'rsv') {
+        var highest9 = Math.max.apply(null, seqNums.slice(-9));
+        var lowest9 = Math.min.apply(null, seqNums.slice(-9));
+        var rsv = highest9 === lowest9 ? 50 : (lastState - lowest9) / (highest9 - lowest9) * 100;
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            if (rsv > 80) { scores[item] = freq[item]; } 
+            else if (rsv < 20) { scores[item] = freq[item] * 2; } 
+            else { scores[item] = freq[item]; }
+        }
+    } else if (algoType === 'mama') {
+        var ma30 = calcMA(seqNums, 30);
+        var ma60 = calcMA(seqNums, 60);
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            if (ma30 > ma60) { scores[item] = item < ma30 ? 100 : 0; } 
+            else { scores[item] = item > ma30 ? 100 : 0; }
+        }
+    } else if (algoType === 'osc') {
+        var ma12 = calcMA(seqNums, 12);
+        var oscVal = ((lastState - ma12) / ma12) * 100;
+        for (var i = 0; i < allKeys.length; i++) {
+            var item = parseInt(allKeys[i]);
+            if (oscVal > 0) { scores[item] = item; } 
+            else { scores[item] = 50 - item; }
+        }
+    }
+
+    var sorted = allKeys.slice().sort(function(a, b) { return scores[b] - scores[a]; });
+    return sorted.slice(-killCount); // 固定杀热（分数最高的杀掉）
+}
+
+/* ================= 真实回测引擎（无未来函数，市场状态权重） ================= */
+function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
+                        killNumCount, killZCount, killTCount, killCCount,
+                        targetCount, useAutoKill, algoInput, valPeriod) {
+
+    var maxP = 3;
+    if (useNum) maxP = Math.max(maxP, pNum);
+    if (useZ) maxP = Math.max(maxP, pZ);
+    if (useT) maxP = Math.max(maxP, pT);
+    if (useC) maxP = Math.max(maxP, pC);
+
+    var testLen = Math.min(valPeriod, seq.length - maxP);
+    if (testLen < 1) return null;
+
+    var startIdx = seq.length - testLen;
+    var seqZ = seq.map(getZodiac);
+    var seqT = seq.map(function(n) { return n % 10; });
+    var seqC = seq.map(getColorParity);
+
+    var algos = ['stats', 'markov', 'knn', 'missing', 'ma', 'fibonacci', 'history_repeat', 'prime', 'even', 'oscillator',
+                 'golden', 'zone', 'reverse', 'prev_tail', 'sum_shift', 'macd', 'boll', 'rsv', 'mama', 'osc'];
+
+    var algoScores = { num: {}, z: {}, t: {}, c: {} };
+    for (var a = 0; a < algos.length; a++) {
+        algoScores.num[algos[a]] = 0;
+        algoScores.z[algos[a]] = 0;
+        algoScores.t[algos[a]] = 0;
+        algoScores.c[algos[a]] = 0;
+    }
+
+    // 1. 计算当前市场状态（基于最近 10 期的标准差）
+    var recent10 = seq.slice(-10);
+    var mean10 = recent10.reduce(function(a,b){return a+b},0) / recent10.length;
+    var variance = recent10.reduce(function(a,b){return a + Math.pow(b-mean10, 2)},0) / recent10.length;
+    var stdDev = Math.sqrt(variance);
+    var marketState = stdDev > 15 ? 'volatile' : 'trend'; // 大于15视为震荡散乱，否则视为聚集趋势
+
+    // 确定性序列兜底（防止频次统计霸榜）
+    var priorityList = ['macd', 'boll', 'mama', 'rsv', 'osc', 'markov', 'knn', 'golden', 'zone', 'prev_tail', 'sum_shift', 'oscillator', 'reverse', 'history_repeat', 'prime', 'even', 'missing', 'ma', 'fibonacci', 'stats'];
+
+    // ✅ 智能决策函数：市场状态加权 + 确定性序列兜底
+    function pickBest(scores) {
+        var max = -1;
+        var bestList = [];
+        for (var i = 0; i < algos.length; i++) {
+            var s = scores[algos[i]];
+            if (s > max) {
+                max = s;
+                bestList = [algos[i]];
+            } else if (s === max) {
+                bestList.push(algos[i]);
+            }
+        }
+        if (bestList.length === 1) return bestList[0];
+
+        // 平局时的市场状态适应打星
+        var stateBonus = {
+            'trend': ['macd', 'mama', 'osc', 'ma'], 
+            'volatile': ['boll', 'rsv', 'oscillator', 'reverse', 'stats']
+        };
+
+        // 按市场状态权重优先，其次按确定性序列
+        bestList.sort(function(a, b) {
+            var aStateScore = stateBonus[marketState].indexOf(a) > -1 ? 1 : 0;
+            var bStateScore = stateBonus[marketState].indexOf(b) > -1 ? 1 : 0;
+            if (aStateScore !== bStateScore) return bStateScore - aStateScore;
+            
+            return priorityList.indexOf(a) - priorityList.indexOf(b);
+        });
+
+        return bestList[0];
+    }
+
+    // 阶段一：计算全量算法胜率排行榜
+    for (var i = startIdx; i < seq.length; i++) {
+        var past = seq.slice(0, i);
+        var pastZ = seqZ.slice(0, i);
+        var pastT = seqT.slice(0, i);
+        var pastC = seqC.slice(0, i);
+
+        var realNext = seq[i];
+        var realNextZ = seqZ[i];
+        var realNextT = seqT[i];
+        var realNextC = seqC[i];
+
+        for (var a = 0; a < algos.length; a++) {
+            if (useNum) {
+                var knE = getAlgoKill(past, algos[a], pNum, killNumCount, 'num');
+                if (knE.indexOf(realNext) === -1) algoScores.num[algos[a]]++;
+            }
+            if (useZ) {
+                var kzE = getAlgoKill(pastZ, algos[a], pZ, killZCount, 'zodiac');
+                if (kzE.indexOf(realNextZ) === -1) algoScores.z[algos[a]]++;
+            }
+            if (useT) {
+                var ktE = getAlgoKill(pastT, algos[a], pT, killTCount, 'tail');
+                if (ktE.indexOf(realNextT) === -1) algoScores.t[algos[a]]++;
+            }
+            if (useC) {
+                var kcE = getAlgoKill(pastC, algos[a], pC, killCCount, 'color');
+                if (kcE.indexOf(realNextC) === -1) algoScores.c[algos[a]]++;
+            }
+        }
+    }
+
+    // 阶段二：动态决策最终使用的算法
+    var finalAlgoNum = algoInput;
+    var finalAlgoZ = algoInput;
+    var finalAlgoT = algoInput;
+    var finalAlgoC = algoInput;
+
+    var isVipUser = checkVipStatus();
+
+    if (isVipUser) {
+        if (algoInput === 'automl') {
+            finalAlgoNum = pickBest(algoScores.num);
+            finalAlgoZ = pickBest(algoScores.z);
+            finalAlgoT = pickBest(algoScores.t);
+            finalAlgoC = pickBest(algoScores.c);
+        }
+    } else {
+        // 免费用户：选一个表现最差（胜率最低）的算法
+        var worstNumAlgo = 'stats';
+        var minRate = 100;
+        for (var a = 0; a < algos.length; a++) {
+            var r = (algoScores.num[algos[a]] / testLen) * 100;
+            if (r < minRate) {
+                minRate = r;
+                worstNumAlgo = algos[a];
+            }
+        }
+        finalAlgoNum = worstNumAlgo;
+        finalAlgoZ = worstNumAlgo;
+        finalAlgoT = worstNumAlgo;
+        finalAlgoC = worstNumAlgo;
+    }
+
+    // 阶段三：按选定算法跑明细
+    var hits = 0;
+    var maxBlack = 0;
+    var curBlack = 0;
+    var details = [];
+
+    for (var i = startIdx; i < seq.length; i++) {
+        var past = seq.slice(0, i);
+        var pastZ = seqZ.slice(0, i);
+        var pastT = seqT.slice(0, i);
+        var pastC = seqC.slice(0, i);
+
+        var realNext = seq[i];
+
+        var killNums = getAlgoKill(past, finalAlgoNum, pNum, killNumCount, 'num');
+        var base = [];
+        if (useNum) {
+            for (var k = 1; k <= 49; k++) if (killNums.indexOf(k) === -1) base.push(k);
+        } else {
+            for (var k = 1; k <= 49; k++) base.push(k);
+        }
+
+        var step2 = base.slice();
+        if (useZ) {
+            var killZ = getAlgoKill(pastZ, finalAlgoZ, pZ, killZCount, 'zodiac');
+            step2 = step2.filter(function(n) { return killZ.indexOf(getZodiac(n)) === -1; });
+        }
+
+        var step3 = step2.slice();
+        if (useT) {
+            var killT = getAlgoKill(pastT, finalAlgoT, pT, killTCount, 'tail');
+            step3 = step3.filter(function(n) { return killT.indexOf(n % 10) === -1; });
+        }
+
+        var step4 = step3.slice();
+        if (useC) {
+            var killC = getAlgoKill(pastC, finalAlgoC, pC, killCCount, 'color');
+            step4 = step4.filter(function(n) { return killC.indexOf(getColorParity(n)) === -1; });
+        }
+
+        var finalList = step4.slice();
+        if (useAutoKill) {
+            var nSeq = past.slice(-pNum);
+            var nFreq = {};
+            for (var k = 1; k <= 49; k++) nFreq[k] = 0;
+            for (var k = 0; k < nSeq.length; k++) nFreq[nSeq[k]]++;
+
+            if (finalList.length > targetCount) {
+                var sortKill = finalList.slice();
+                // 修复：大底杀热，控盘也杀相对高频，保留极冷号（即按频次升序排列，取前N个）
+                sortKill.sort(function(a, b) { return nFreq[a] - nFreq[b]; });
+                finalList = sortKill.slice(0, targetCount);
+            } else if (finalList.length < targetCount) {
+                var toRescue = [];
+                for (var r = 1; r <= 49; r++) if (finalList.indexOf(r) === -1) toRescue.push(r);
+                var sortRescue = toRescue.slice();
+                // 修复：需要补码时，补入大底杀掉的热码（按频次降序排列，取前N个）
+                sortRescue.sort(function(a, b) { return nFreq[b] - nFreq[a]; });
+                var need = targetCount - finalList.length;
+                for (var r = 0; r < need; r++) finalList.push(sortRescue[r]);
+            }
+        }
+
+        var isHit = finalList.indexOf(realNext) > -1;
+        if (isHit) { hits++; curBlack = 0; }
+        else { curBlack++; if (curBlack > maxBlack) maxBlack = curBlack; }
+
+        details.push({
+            idx: i,
+            real: realNext,
+            isHit: isHit,
+            listLen: finalList.length,
+            finalList: finalList,
+            usedNum: finalAlgoNum,
+            usedZ: finalAlgoZ,
+            usedT: finalAlgoT,
+            usedC: finalAlgoC
+        });
+    }
+
+    var finalRate = (hits / testLen) * 100;
+
+    var bestNum = 'stats', bestZ = 'stats', bestT = 'stats', bestC = 'stats';
+    if (useNum) bestNum = pickBest(algoScores.num);
+    if (useZ) bestZ = pickBest(algoScores.z);
+    if (useT) bestT = pickBest(algoScores.t);
+    if (useC) bestC = pickBest(algoScores.c);
+
+    autoMlWinners = { num: bestNum, z: bestZ, t: bestT, c: bestC };
+
+    return {
+        total: testLen,
+        hits: hits,
+        rate: finalRate.toFixed(1),
+        maxBlack: maxBlack,
+        details: details,
+        scores: algoScores,
+        algosList: algos,
+        actualAlgo: finalAlgoNum,
+        marketState: marketState
+    };
+}
+
+/* ================= 主流程 ================= */
+var RING_CIRC = 2 * Math.PI * 42;
+
+function runBacktest() {
+    var isVip = checkVipStatus();
+    
+    // 兜底限制
+    if (!isVip) {
+        document.getElementById('algoSelect').value = 'free_random';
+        document.getElementById('swAutoKill').checked = false;
+        document.getElementById('swZ').checked = false;
+        document.getElementById('swT').checked = false;
+        document.getElementById('swC').checked = false;
+        document.getElementById('swNum').checked = true;
+        
+        document.getElementById('numPeriod').value = 100;
+        document.getElementById('killNumCount').value = 13;
+        
+        if (parseInt(document.getElementById('validatePeriod').value) > 20) {
+            document.getElementById('validatePeriod').value = '20';
+        }
+        updateSwitchUI();
+    }
+
+    var text = document.getElementById('history').value;
+    if (!text) { toast('请先输入历史开奖记录'); return; }
+
+    var overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('show');
+
+    setTimeout(function() {
+        try {
+            saveData(false);
+
+            var useNum = document.getElementById('swNum').checked;
+            var useZ = document.getElementById('swZ').checked;
+            var useT = document.getElementById('swT').checked;
+            var useC = document.getElementById('swC').checked;
+            var useAutoKill = document.getElementById('swAutoKill').checked;
+            var targetCount = parseInt(document.getElementById('targetOutputCount').value) || 36;
+            var algoInput = document.getElementById('algoSelect').value;
+            
+            var valPeriod = parseInt(document.getElementById('validatePeriod').value) || 20;
+            if (!isVip) {
+                valPeriod = Math.min(valPeriod, 20);
+            }
+
+            if (!useNum && !useZ && !useT && !useC) {
+                toast('至少需要开启一层过滤');
+                overlay.classList.remove('show');
+                return;
+            }
+
+            var pNum = parseInt(document.getElementById('numPeriod').value) || 100;
+            var pZ = parseInt(document.getElementById('zPeriod').value) || 50;
+            var pT = parseInt(document.getElementById('tPeriod').value) || 30;
+            var pC = parseInt(document.getElementById('cPeriod').value) || 50;
+
+            var killNumCount = parseInt(document.getElementById('killNumCount').value) || 13;
+            var killZCount = parseInt(document.getElementById('killZCount').value) || 2;
+            var killTCount = parseInt(document.getElementById('killTCount').value) || 2;
+            var killCCount = parseInt(document.getElementById('killCCount').value) || 1;
+            
+            if (!isVip) killNumCount = 13; // 强行覆盖为 36 码
+
+            var maxPeriod = 10;
+            if (useNum && pNum > maxPeriod) maxPeriod = pNum;
+            if (useZ && pZ > maxPeriod) maxPeriod = pZ;
+            if (useT && pT > maxPeriod) maxPeriod = pT;
+            if (useC && pC > maxPeriod) maxPeriod = pC;
+
+            var seq = [];
+            var periods = [];
+            var lines = text.split(/\n/);
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                var matches = line.match(/\d+/g);
+                if (matches && matches.length > 0) {
+                    var n = parseInt(matches[matches.length - 1]);
+                    if (n >= 1 && n <= 49) {
+                        seq.push(n);
+                        periods.push(line.replace(/\d+$/, '').replace(/[:：\s]/g, '').trim() || ("第" + (i + 1) + "行"));
+                    }
+                }
+            }
+
+            if (seq.length < maxPeriod + valPeriod) {
+                toast('数据不足，至少需要 ' + (maxPeriod + valPeriod) + ' 期');
+                overlay.classList.remove('show');
+                return;
+            }
+
+            var btResult = backtestEngine(
+                seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
+                killNumCount, killZCount, killTCount, killCCount,
+                targetCount, useAutoKill, algoInput, valPeriod
+            );
+
+            /* ========== 回测统计 ========== */
+            currentBtTotal = btResult.total;
+            currentBtRate = btResult.rate + "%";
+            currentBtMaxBlack = btResult.maxBlack;
+
+            document.getElementById('bt-hit-rate').innerText = currentBtRate;
+            document.getElementById('bt-hit-count').innerText = btResult.hits + " / " + currentBtTotal;
+            document.getElementById('bt-max-black').innerText = currentBtMaxBlack + " 期";
+
+            var ring = document.getElementById('ring-fg');
+            var rateNum = parseFloat(btResult.rate) || 0;
+            ring.style.strokeDashoffset = RING_CIRC - RING_CIRC * (rateNum / 100);
+
+            /* ========== 趋势条 ========== */
+            var trendHtml = "";
+            for (var i = 0; i < btResult.details.length; i++) {
+                var td = btResult.details[i];
+                var cls = td.isHit ? 'hit' : 'miss';
+                var txt = td.isHit ? '命中' : '漏网';
+                trendHtml += "<div class='trend-cell " + cls + "' title='" + periods[td.idx] + " · " + td.real + " · " + txt + "'></div>";
+            }
+            var tb = document.getElementById('trend-bar');
+            tb.innerHTML = trendHtml;
+            setTimeout(function() { tb.scrollLeft = tb.scrollWidth; }, 40);
+
+            /* ========== 算法排行榜（全量展示 20 个） ========== */
+            document.getElementById('algo-rank-box').style.display = 'block';
+            document.getElementById('rank-hint').style.display = isVip ? 'none' : 'block';
+
+            var buildRankHtml = function(scores) {
+                var arr = [];
+                for (var k in scores) arr.push({ name: algoNames[k], score: scores[k] });
+                arr.sort(function(a, b) { return b.score - a.score; });
+                var html = "";
+                for (var i = 0; i < arr.length; i++) {
+                    var rateStr = (arr[i].score / btResult.total * 100).toFixed(1);
+                    var rateVal = parseFloat(rateStr);
+                    var vipTag = (rateVal >= 80 && !isVip) ? " <span style='color:var(--gold); font-size:9px; font-weight:normal;'>[VIP专享]</span>" : "";
+                    html += "<div class='algo-rank-row'><span class='algo-rank-name'>" + (i + 1) + ". " + arr[i].name + vipTag + "</span><span class='algo-rank-rate'>" + rateStr + "%</span></div>";
+                }
+                return html;
+            };
+
+            var dims = [
+                { col: 'rank-num-col', list: 'rank-num-list', use: useNum, scores: btResult.scores.num },
+                { col: 'rank-z-col', list: 'rank-z-list', use: useZ, scores: btResult.scores.z },
+                { col: 'rank-t-col', list: 'rank-t-list', use: useT, scores: btResult.scores.t },
+                { col: 'rank-c-col', list: 'rank-c-list', use: useC, scores: btResult.scores.c }
+            ];
+            for (var d = 0; d < dims.length; d++) {
+                var colEl = document.getElementById(dims[d].col);
+                var listEl = document.getElementById(dims[d].list);
+                if (dims[d].use) {
+                    colEl.style.display = 'block';
+                    listEl.innerHTML = buildRankHtml(dims[d].scores);
+                } else {
+                    colEl.style.display = 'none';
+                }
+            }
+
+            /* ========== 逐期明细 ========== */
+            var listHtml = "";
+            var lastIdx = btResult.details.length - 1;
+            for (var i = lastIdx; i >= 0; i--) {
+                var d = btResult.details[i];
+                var pStr = periods[d.idx];
+                var textStr = d.isHit ? "命中" : "漏网";
+                var resCls = d.isHit ? "hit" : "miss";
+
+                listHtml += "<div class='bt-row'>";
+                listHtml += "<div class='bt-row-top'>";
+                listHtml += "<div class='bt-period'>" + pStr + "</div>";
+                listHtml += "<div class='bt-real'>" + d.real + "</div>";
+                listHtml += "<div class='bt-result " + resCls + "'>" + textStr + " · " + d.listLen + "码</div>";
+                listHtml += "</div>";
+
+                if (algoInput === 'automl') {
+                    listHtml += "<div class='bt-strategy-tags'>";
+                    if (useNum) listHtml += "<span class='bt-tag'>号 · " + algoNames[d.usedNum] + "</span>";
+                    if (useZ) listHtml += "<span class='bt-tag'>肖 · " + algoNames[d.usedZ] + "</span>";
+                    if (useT) listHtml += "<span class='bt-tag'>尾 · " + algoNames[d.usedT] + "</span>";
+                    if (useC) listHtml += "<span class='bt-tag'>色 · " + algoNames[d.usedC] + "</span>";
+                    listHtml += "</div>";
+                }
+
+                listHtml += "<div class='bt-predict-detail'>【" + algoNames[d.usedNum] + "】出票：<span>" + d.finalList.join(", ") + "</span></div>";
+                listHtml += "</div>";
+            }
+            document.getElementById('bt-list-container').innerHTML = listHtml;
+
+            /* ========== 下一期预测 ========== */
+            var lastPeriod = periods[periods.length - 1];
+            var pNumVal = parseInt(lastPeriod.replace(/\D/g, ''));
+            currentPredictPeriod = !isNaN(pNumVal) ? ((pNumVal + 1) + " 期") : (lastPeriod + " 的下一期");
+
+            var now = new Date();
+            currentGenTime = now.getFullYear() + "-" +
+                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                ("0" + now.getDate()).slice(-2) + " " +
+                ("0" + now.getHours()).slice(-2) + ":" +
+                ("0" + now.getMinutes()).slice(-2) + ":" +
+                ("0" + now.getSeconds()).slice(-2);
+
+            var usedNumAlgo = (algoInput === 'automl') ? autoMlWinners.num : algoInput;
+            var usedZAlgo = (algoInput === 'automl') ? autoMlWinners.z : algoInput;
+            var usedTAlgo = (algoInput === 'automl') ? autoMlWinners.t : algoInput;
+            var usedCAlgo = (algoInput === 'automl') ? autoMlWinners.c : algoInput;
+            
+            if (!isVip && btResult.actualAlgo) {
+                usedNumAlgo = btResult.actualAlgo;
+                usedZAlgo = btResult.actualAlgo;
+                usedTAlgo = btResult.actualAlgo;
+                usedCAlgo = btResult.actualAlgo;
+            }
+
+            var activeFilters = [];
+            if (useNum) activeFilters.push("大底" + pNum + "期杀" + killNumCount + "码(" + algoNames[usedNumAlgo] + ")");
+            if (useZ) activeFilters.push("生肖" + pZ + "期杀" + killZCount + "肖(" + algoNames[usedZAlgo] + ")");
+            if (useT) activeFilters.push("尾数" + pT + "期杀" + killTCount + "尾(" + algoNames[usedTAlgo] + ")");
+            if (useC) activeFilters.push("波色" + pC + "期杀" + killCCount + "色(" + algoNames[usedCAlgo] + ")");
+            if (useAutoKill) activeFilters.push("控盘锁定" + targetCount + "码");
+            currentStrategyStr = activeFilters.join(" + ");
+
+            document.getElementById('lbl-predict-period').innerText = currentPredictPeriod;
+            document.getElementById('lbl-gen-time').innerText = currentGenTime;
+            document.getElementById('lbl-bt-total').innerText = currentBtTotal;
+            document.getElementById('lbl-bt-rate').innerText = currentBtRate;
+            document.getElementById('lbl-bt-black').innerText = currentBtMaxBlack;
+            document.getElementById('lbl-strategy').innerText = currentStrategyStr;
+
+            /* ---- KDJ 数据 ---- */
+            var k_prev = 50, d_prev = 50;
+            var n_kdj = Math.min(9, seq.length);
+            for (var i = n_kdj - 1; i < seq.length; i++) {
+                var window = seq.slice(i - n_kdj + 1, i + 1);
+                var high = Math.max.apply(null, window);
+                var low = Math.min.apply(null, window);
+                var close = seq[i];
+                var rsv = high === low ? 50 : (close - low) / (high - low) * 100;
+                k_prev = (2 / 3) * k_prev + (1 / 3) * rsv;
+                d_prev = (2 / 3) * d_prev + (1 / 3) * k_prev;
+            }
+            var curK = k_prev, curD = d_prev, curJ = 3 * k_prev - 2 * d_prev;
+
+            if (isVip) {
+                document.getElementById('kdj-k-val').innerText = curK.toFixed(1);
+                document.getElementById('kdj-d-val').innerText = curD.toFixed(1);
+                document.getElementById('kdj-j-val').innerText = curJ.toFixed(1);
+            } else {
+                document.getElementById('kdj-k-val').innerText = "**";
+                document.getElementById('kdj-d-val').innerText = "**";
+                document.getElementById('kdj-j-val').innerText = "**";
+            }
+
+            var kdjBull = curK > curD;
+            document.getElementById('kdj-signal').innerHTML = kdjBull
+                ? "<span class='sig-bull'>▲ 金叉 看涨</span>"
+                : "<span class='sig-bear'>▼ 死叉 看跌</span>";
+
+            var recent10 = seq.slice(-10);
+            var hotNums = [], coldNums = [];
+            for (var i = 1; i <= 49; i++) {
+                var cnt = recent10.filter(function(x) { return x === i; }).length;
+                if (cnt >= 2) hotNums.push(i);
+                var lastIdxN = -1;
+                for (var j = seq.length - 1; j >= 0; j--) {
+                    if (seq[j] === i) { lastIdxN = j; break; }
+                }
+                var miss = lastIdxN === -1 ? seq.length : seq.length - 1 - lastIdxN;
+                if (miss > 40) coldNums.push(i);
+            }
+
+            var techHtml = "<div class='tech-alert " + (kdjBull ? "res-green" : "res-red") + "'>";
+            if (isVip) {
+                techHtml += "<b>指标共振分析：</b>" + (kdjBull
+                    ? "KDJ 呈金叉看涨形态，短期内多头动能较强。"
+                    : "KDJ 呈死叉看跌形态，空头动能占据主导。");
+                if (hotNums.length > 0) techHtml += "<br><b>上方压力位（极热号）：</b>" + hotNums.join(", ");
+                if (coldNums.length > 0) techHtml += "<br><b>下方支撑位（极冷号）：</b>" + coldNums.join(", ") + "（随时反弹）";
+            } else {
+                techHtml += "<b>指标共振分析：</b> [升级 VIP 解锁深度技术面分析]<br>";
+                techHtml += "<b>上方压力位：</b> ***<br>";
+                techHtml += "<b>下方支撑位：</b> *** (随时反弹)";
+            }
+            techHtml += "</div>";
+            document.getElementById('tech-alert-box').innerHTML = techHtml;
+
+            /* ---- 新增 5 大高级指标渲染 ---- */
+            var advHtml = "";
+            var advHint = document.getElementById('adv-vip-hint');
+            
+            // 计算当前值展示
+            var ema12 = calcEMA(seq, 12);
+            var ema26 = calcEMA(seq, 26);
+            var dif = ema12 - ema26;
+            var macdText = dif > 0 ? "金叉 (看涨)" : "死叉 (看跌)";
+            var macdColor = dif > 0 ? "var(--green)" : "var(--red)";
+
+            var ma20 = calcMA(seq, 20);
+            var std20 = calcStd(seq, 20, ma20);
+            var upper = ma20 + 2 * std20;
+            var lower = ma20 - 2 * std20;
+            var bollText = "中轨震荡";
+            var bollColor = "var(--dim)";
+            if (seq[seq.length-1] > upper) { bollText = "突破上轨"; bollColor = "var(--red)"; }
+            else if (seq[seq.length-1] < lower) { bollText = "跌破下轨"; bollColor = "var(--green)"; }
+
+            var highest9 = Math.max.apply(null, seq.slice(-9));
+            var lowest9 = Math.min.apply(null, seq.slice(-9));
+            var rsvVal = highest9 === lowest9 ? 50 : (seq[seq.length-1] - lowest9) / (highest9 - lowest9) * 100;
+            var rsvText = rsvVal > 80 ? "超买" : (rsvVal < 20 ? "超卖" : "正常");
+            var rsvColor = rsvVal > 80 ? "var(--red)" : (rsvVal < 20 ? "var(--green)" : "var(--blue)");
+
+            var ma30 = calcMA(seq, 30);
+            var ma60 = calcMA(seq, 60);
+            var mamaText = ma30 > ma60 ? "多头 (金叉)" : "空头 (死叉)";
+            var mamaColor = ma30 > ma60 ? "var(--green)" : "var(--red)";
+
+            var ma12 = calcMA(seq, 12);
+            var oscVal = ((seq[seq.length-1] - ma12) / ma12) * 100;
+            var oscText = oscVal > 0 ? "正柱 (走强)" : "负柱 (走弱)";
+            var oscColor = oscVal > 0 ? "var(--green)" : "var(--red)";
+
+            if (isVip) {
+                advHint.innerText = "";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>MACD 背离</span><span class='adv-ind-val' style='color:" + macdColor + "'>" + macdText + "</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>布林通道</span><span class='adv-ind-val' style='color:" + bollColor + "'>" + bollText + "</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>RSV 数列</span><span class='adv-ind-val' style='color:" + rsvColor + "'>" + rsvText + "</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>多周期均线</span><span class='adv-ind-val' style='color:" + mamaColor + "'>" + mamaText + "</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>OSC 柱状图</span><span class='adv-ind-val' style='color:" + oscColor + "'>" + oscText + "</span></div>";
+            } else {
+                advHint.innerText = "VIP 专享";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>MACD 背离</span><span class='adv-ind-val' style='color:var(--faint)'>***</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>布林通道</span><span class='adv-ind-val' style='color:var(--faint)'>***</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>RSV 数列</span><span class='adv-ind-val' style='color:var(--faint)'>***</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>多周期均线</span><span class='adv-ind-val' style='color:var(--faint)'>***</span></div>";
+                advHtml += "<div class='adv-ind-item'><span class='adv-ind-name'>OSC 柱状图</span><span class='adv-ind-val' style='color:var(--faint)'>***</span></div>";
+            }
+            document.getElementById('adv-indicator-grid').innerHTML = advHtml;
+
+            /* ---- AI 战术描述 ---- */
+            var aiHtml = "";
+            aiHtml += "<b>【算法模型】</b>采用 <b>" + (algoInput === 'automl' ? '20大算法自动优选' : algoNames[algoInput]) + "</b> 进行核心过滤。<br>";
+            
+            if (!isVip && btResult.actualAlgo && btResult.actualAlgo !== 'stats') {
+                aiHtml += "<span style='color:var(--gold)'>* 免费版已为您自动匹配避雷策略，命中率较低属正常现象。</span><br>";
+            }
+
+            if (useAutoKill) {
+                aiHtml += "<b>【控盘补刀】</b>已开启精准控盘，强制将出票数量修正为 " + targetCount + " 码。<br>";
+            } else {
+                aiHtml += "<b>【控盘补刀】</b>未开启，按原过滤逻辑自然输出。<br>";
+            }
+            aiHtml += "<b>【当前生效过滤层】</b>" + activeFilters.join("、") + "。";
+            document.getElementById('ai-desc-text').innerHTML = aiHtml;
+
+            /* ---- 漏斗展示 ---- */
+
+            /* Step 1 */
+            var baseResult = [];
+            if (useNum) {
+                document.getElementById('step1-box').style.display = 'block';
+                var killNumsFinal = getAlgoKill(seq, usedNumAlgo, pNum, killNumCount, 'num');
+                for (var i = 1; i <= 49; i++) if (killNumsFinal.indexOf(i) === -1) baseResult.push(i);
+                document.getElementById('step1-count').innerText = "保留 " + baseResult.length + " 码";
+                document.getElementById('step1-nums').innerHTML =
+                    "<b>[" + algoNames[usedNumAlgo] + "]</b> 杀掉 " + killNumCount + " 个号码<br>" +
+                    "杀掉号码：" + killNumsFinal.sort(function(a, b) { return a - b; }).join(", ") + "<br>" +
+                    "剩余号码：" + baseResult.join(", ");
+            } else {
+                document.getElementById('step1-box').style.display = 'none';
+                for (var i = 1; i <= 49; i++) baseResult.push(i);
+            }
+
+            /* Step 2 */
+            var step2Result = [];
+            if (useZ) {
+                document.getElementById('step2-box').style.display = 'block';
+                var killZFinal = getAlgoKill(seq.map(getZodiac), usedZAlgo, pZ, killZCount, 'zodiac');
+                for (var i = 0; i < baseResult.length; i++) {
+                    if (killZFinal.indexOf(getZodiac(baseResult[i])) === -1) step2Result.push(baseResult[i]);
+                }
+                document.getElementById('step2-count').innerText = "剩 " + step2Result.length + " 码";
+                document.getElementById('step2-nums').innerHTML =
+                    "<b>[" + algoNames[usedZAlgo] + "]</b> 杀掉生肖：" + killZFinal.join("、") + "<br>" +
+                    "剩余号码：" + step2Result.join(", ");
+            } else {
+                document.getElementById('step2-box').style.display = 'none';
+                step2Result = baseResult.slice();
+            }
+
+            /* Step 3 */
+            var step3Result = [];
+            if (useT) {
+                document.getElementById('step3-box').style.display = 'block';
+                var killTFinal = getAlgoKill(seq.map(function(n) { return n % 10; }), usedTAlgo, pT, killTCount, 'tail');
+                for (var i = 0; i < step2Result.length; i++) {
+                    if (killTFinal.indexOf(step2Result[i] % 10) === -1) step3Result.push(step2Result[i]);
+                }
+                document.getElementById('step3-count').innerText = "剩 " + step3Result.length + " 码";
+                document.getElementById('step3-nums').innerHTML =
+                    "<b>[" + algoNames[usedTAlgo] + "]</b> 杀掉尾数：" + killTFinal.join("、") + "尾<br>" +
+                    "剩余号码：" + step3Result.join(", ");
+            } else {
+                document.getElementById('step3-box').style.display = 'none';
+                step3Result = step2Result.slice();
+            }
+
+            /* Step 4 */
+            var step4Result = [];
+            if (useC) {
+                document.getElementById('step4-box').style.display = 'block';
+                var killCFinal = getAlgoKill(seq.map(getColorParity), usedCAlgo, pC, killCCount, 'color');
+                for (var i = 0; i < step3Result.length; i++) {
+                    if (killCFinal.indexOf(getColorParity(step3Result[i])) === -1) step4Result.push(step3Result[i]);
+                }
+                document.getElementById('step4-count').innerText = "剩 " + step4Result.length + " 码";
+                document.getElementById('step4-nums').innerHTML =
+                    "<b>[" + algoNames[usedCAlgo] + "]</b> 杀掉波色：" + killCFinal.join("、") + "<br>" +
+                    "剩余号码：" + step4Result.join(", ");
+            } else {
+                document.getElementById('step4-box').style.display = 'none';
+                step4Result = step3Result.slice();
+            }
+
+            /* Step 5 */
+            var finalList = step4Result.slice();
+            document.getElementById('step5-box').style.display = 'block';
+
+            var nSeq = seq.slice(-pNum);
+            var nFreq = {};
+            for (var k = 1; k <= 49; k++) nFreq[k] = 0;
+            for (var k = 0; k < nSeq.length; k++) nFreq[nSeq[k]]++;
+
+            if (useAutoKill) {
+                if (finalList.length > targetCount) {
+                    var sortKill = finalList.slice();
+                    // 修复：大底杀热，控盘也杀相对高频，保留极冷号（即按频次升序排列，取前N个）
+                    sortKill.sort(function(a, b) { return nFreq[a] - nFreq[b]; });
+                    var killed = sortKill.slice(targetCount);
+                    finalList = sortKill.slice(0, targetCount);
+                    document.getElementById('step5-nums').innerHTML = "自动缩水：砍掉 " + killed.sort(function(a, b) { return a - b; }).join(", ");
+                    document.getElementById('step5-count').innerText = "杀 " + killed.length + " 码";
+                } else if (finalList.length < targetCount) {
+                    var toRescue = [];
+                    for (var r = 1; r <= 49; r++) if (finalList.indexOf(r) === -1) toRescue.push(r);
+                    var sortRescue = toRescue.slice();
+                    // 修复：需要补码时，补入大底杀掉的热码（按频次降序排列，取前N个）
+                    sortRescue.sort(function(a, b) { return nFreq[b] - nFreq[a]; });
+                    var need = targetCount - finalList.length;
+                    var rescued = sortRescue.slice(0, need);
+                    for (var r = 0; r < need; r++) finalList.push(rescued[r]);
+                    document.getElementById('step5-nums').innerHTML = "自动回捞：补入 " + rescued.sort(function(a, b) { return a - b; }).join(", ");
+                    document.getElementById('step5-count').innerText = "补 " + rescued.length + " 码";
+                } else {
+                    document.getElementById('step5-nums').innerHTML = "刚好满足 " + targetCount + " 码";
+                    document.getElementById('step5-count').innerText = "达标";
+                }
+            } else {
+                document.getElementById('step5-nums').innerHTML = "按原逻辑输出，剩余 " + finalList.length + " 码";
+                document.getElementById('step5-count').innerText = "关闭";
+            }
+
+            original_array = finalList.slice();
+            final_numbers_array = finalList.slice();
+
+            if (original_array.length === 0) {
+                toast('过滤条件太严苛，剩余号码为 0');
+                overlay.classList.remove('show');
+                return;
+            }
+
+            renderNumbers();
+
+            document.getElementById('predict-empty').style.display = 'none';
+            document.getElementById('predict-result').style.display = 'block';
+            
+            switchPage('predict');
+            toast('预测与回测已生成');
+
+        } catch (e) {
+            alert("系统解析出错: " + e.message);
+        } finally {
+            overlay.classList.remove('show');
+        }
+    }, 300);
+}
+</script>
+</body>
+</html>
