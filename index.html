@@ -3,15 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>新澳特码版回测 v1.6.4更新后台云端同步历史记录</title>
+<title>新澳特码版回测 v1.5.4网络验证免费版</title>
 <style>
-/* 卡密錯誤震動動畫 */
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-}    
 :root{
     --bg:#080a0e;
     --bg-2:#0b0e14;
@@ -699,6 +692,14 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
 }
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-text{font-size:12.5px;font-weight:600;color:var(--dim);letter-spacing:.04em}
+
+/* 卡密錯誤震動動畫 */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}
 </style>
 </head>
 <body data-theme="mint">
@@ -724,7 +725,7 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
 <header class="app-header">
     <div class="brand">
         <span class="brand-dot"></span>
-        <span class="app-title">特码阻击手v1.5.4</span>
+        <span class="app-title">智能五级漏斗 v1.5.4</span>
     </div>
     <div class="header-right">
         <button class="theme-quick" onclick="cycleTheme()" aria-label="切换主题"><i></i></button>
@@ -738,16 +739,14 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
     <!-- ==================== 数据页 ==================== -->
     <section id="page-data" class="page active">
         <div class="card latest-card" id="latest-draw-card" style="display:none;">
-            <div class="latest-title">最新开将展示</div>
+            <div class="latest-title">最新开奖展示</div>
             <div class="latest-period" id="latest-period">--</div>
-            <div class="latest-ball-wrap" id="latest-ball-wrap">
-                <!-- 号球通过 JS 插入 -->
-            </div>
+            <div class="latest-ball-wrap" id="latest-ball-wrap"></div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <span class="card-title">历史开将数据</span>
+                <span class="card-title">历史开奖数据</span>
                 <span class="chip-mint" id="data-count-badge">0 期</span>
             </div>
             <textarea id="history" oninput="onHistoryInput()" placeholder="每行一条，格式：期号:号码&#10;例：&#10;2026001:29&#10;2026002:22"></textarea>
@@ -762,7 +761,8 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
         </div>
         <div class="hint" style="padding:0 6px;">号码范围为 1–49，每行一条，系统会实时自动保存到本地，防止意外丢失。</div>
     </section>
-<!-- ==================== 開獎歷史頁 ==================== -->
+
+    <!-- ==================== 開獎歷史頁 ==================== -->
     <section id="page-history" class="page">
         <div class="card">
             <div class="card-header">
@@ -774,24 +774,16 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
             </div>
         </div>
     </section>
+
     <!-- ==================== 参数页 ==================== -->
     <section id="page-config" class="page">
-
         <div class="card" id="theme-card">
             <div class="card-header"><span class="card-title">外观主题</span></div>
             <div class="theme-grid">
-                <button class="theme-opt" data-theme="mint" onclick="setTheme('mint')">
-                    <span class="theme-dot" style="--d:#4ee0c1"></span><span>薄荷青</span>
-                </button>
-                <button class="theme-opt" data-theme="gold" onclick="setTheme('gold')">
-                    <span class="theme-dot" style="--d:#e8c584"></span><span>黑金</span>
-                </button>
-                <button class="theme-opt" data-theme="ice" onclick="setTheme('ice')">
-                    <span class="theme-dot" style="--d:#7db4ff"></span><span>冰蓝</span>
-                </button>
-                <button class="theme-opt" data-theme="violet" onclick="setTheme('violet')">
-                    <span class="theme-dot" style="--d:#b39bff"></span><span>霓虹紫</span>
-                </button>
+                <button class="theme-opt" data-theme="mint" onclick="setTheme('mint')"><span class="theme-dot" style="--d:#4ee0c1"></span><span>薄荷青</span></button>
+                <button class="theme-opt" data-theme="gold" onclick="setTheme('gold')"><span class="theme-dot" style="--d:#e8c584"></span><span>黑金</span></button>
+                <button class="theme-opt" data-theme="ice" onclick="setTheme('ice')"><span class="theme-dot" style="--d:#7db4ff"></span><span>冰蓝</span></button>
+                <button class="theme-opt" data-theme="violet" onclick="setTheme('violet')"><span class="theme-dot" style="--d:#b39bff"></span><span>霓虹紫</span></button>
             </div>
         </div>
 
@@ -920,7 +912,6 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
                 <div class="ai-desc" id="ai-desc-text">正在生成…</div>
             </div>
 
-            <!-- KDJ 与 高级指标 -->
             <div class="tech-panel">
                 <div class="tech-header">
                     <div>KDJ 支撑压力位 · 技术面</div>
@@ -933,15 +924,12 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
                 </div>
                 <div id="tech-alert-box"></div>
 
-                <!-- 新增高级指标展示区 -->
                 <div class="adv-indicator-box">
                     <div class="adv-indicator-title">
                         <span>高级量化指标矩阵</span>
                         <span style="color:var(--gold);" id="adv-vip-hint"></span>
                     </div>
-                    <div class="adv-indicator-grid" id="adv-indicator-grid">
-                        <!-- 动态生成 -->
-                    </div>
+                    <div class="adv-indicator-grid" id="adv-indicator-grid"></div>
                 </div>
             </div>
 
@@ -1075,6 +1063,15 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
         </svg>
         <span>数据</span>
     </button>
+    
+    <button data-page="history" onclick="switchPage('history')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12 7 12 12 15 15"/>
+        </svg>
+        <span>開獎歷史</span>
+    </button>
+
     <button data-page="config" onclick="switchPage('config')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
             <line x1="3.5" y1="7.5" x2="20.5" y2="7.5"/>
@@ -1100,12 +1097,6 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
             <rect x="15.1" y="14.5" width="3.4" height="5.5" rx="1"/>
         </svg>
         <span>回测</span>
-        <button data-page="history" onclick="switchPage('history')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="9"/>
-            <polyline points="12 7 12 12 15 15"/>
-        </svg>
-        <span>開獎歷史</span>
     </button>
 </nav>
 
@@ -1166,9 +1157,8 @@ var currentBtRate = "0.0%";
 var currentBtMaxBlack = "0";
 
 var autoMlWinners = { num: 'stats', z: 'stats', t: 'stats', c: 'stats' };
-/* ================= 後台雲端同步與歷史記錄展示 ================= */
 
-// 1. 這裡替換成你的 GitHub 鏈接 (例如：https://你的帳號.github.io/你的專案/history.json)
+/* ================= 後台雲端同步與歷史記錄展示 ================= */
 var REMOTE_DATA_URL = 'https://danny010690.github.io/mac6-pro/history.json'; 
 
 async function fetchRemoteData() {
@@ -1176,13 +1166,13 @@ async function fetchRemoteData() {
     if (statusEl) statusEl.innerText = '同步中...';
 
     try {
-        const response = await fetch(REMOTE_DATA_URL + '?t=' + new Date().getTime(), { cache: "no-store" });
-        if (!response.ok) throw new Error('網絡請求失敗');
+        var url = REMOTE_DATA_URL + '?t=' + new Date().getTime();
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         
         const data = await response.json();
         
         if (data && data.length > 0) {
-            // 1. 更新輸入框
             var newText = "";
             data.forEach(item => {
                 var p = item.period || item.issue || '';
@@ -1197,18 +1187,15 @@ async function fetchRemoteData() {
                 historyEl.value = newText.trim();
                 saveData(false);
                 updateDataCount();
-                renderLatestDraw(); // 更新首頁大球
+                renderLatestDraw();
             }
             
-            // 2. 更新歷史頁的狀態文字
             if (statusEl) {
                 statusEl.innerText = '已同步 (' + data.length + '期)'; 
                 statusEl.style.color = 'var(--accent)'; 
             }
             
-            // 3. 渲染歷史列表
             renderHistoryRecord(data);
-            
         } else {
             throw new Error('數據為空');
         }
@@ -1218,12 +1205,10 @@ async function fetchRemoteData() {
             statusEl.innerText = '離線模式';
             statusEl.style.color = 'var(--red)';
         }
-        // 離線時使用本地數據渲染
         parseLocalAndRender();
     }
 }
 
-// 渲染歷史記錄列表
 function renderHistoryRecord(dataArray) {
     var list = document.getElementById('history-record-list');
     if (!list) return;
@@ -1234,7 +1219,7 @@ function renderHistoryRecord(dataArray) {
     }
     
     var html = "";
-    var recent = dataArray.slice(-50).reverse(); // 取最近 50 期
+    var recent = dataArray.slice(-50).reverse(); 
     
     recent.forEach(item => {
         var num = parseInt(item.num || item.number || 0);
@@ -1260,7 +1245,6 @@ function renderHistoryRecord(dataArray) {
     list.innerHTML = html;
 }
 
-// 解析本地文本框並渲染
 function parseLocalAndRender() {
     var text = document.getElementById('history').value;
     if (!text) return;
@@ -1279,6 +1263,7 @@ function parseLocalAndRender() {
     });
     renderHistoryRecord(data);
 }
+
 /* ================= VIP 网络验证控制 ================= */
 const API_URL = 'https://winter-night-ffc5.vivibeauty01.workers.dev'; 
 
@@ -1318,7 +1303,7 @@ function updateVipUI() {
 function onAlgoChange() {
     var sel = document.getElementById('algoSelect');
     if (!checkVipStatus() && sel.value !== 'free_random') {
-        sel.value = 'free_random'; // 免费版强制锁定
+        sel.value = 'free_random'; 
         saveData(false);
         showVipModal();
         return;
@@ -1326,11 +1311,10 @@ function onAlgoChange() {
     saveData(false);
 }
 
-// 拦截免费用户选超过 20 期的回测
 function onValidatePeriodChange() {
     var sel = document.getElementById('validatePeriod');
     if (!checkVipStatus() && parseInt(sel.value) > 20) {
-        sel.value = '20'; // 强制退回到 20 期
+        sel.value = '20'; 
         saveData(false);
         showVipModal();
         return;
@@ -1416,7 +1400,6 @@ window.onload = function() {
         }
     } catch (e) {}
 
-    // 免费用户强制锁定
     if (!checkVipStatus()) {
         document.getElementById('algoSelect').value = 'free_random';
         document.getElementById('swNum').checked = true;
@@ -1428,7 +1411,6 @@ window.onload = function() {
         var valSel = document.getElementById('validatePeriod');
         if (parseInt(valSel.value) > 20) valSel.value = '20';
 
-        // 锁死大底 36 码
         var numP = document.getElementById('numPeriod');
         var killN = document.getElementById('killNumCount');
         numP.value = 100;
@@ -1438,7 +1420,6 @@ window.onload = function() {
         numP.style.pointerEvents = 'none';
         killN.style.pointerEvents = 'none';
     } else {
-        // VIP用户解锁大底修改
         var numP = document.getElementById('numPeriod');
         var killN = document.getElementById('killNumCount');
         numP.removeAttribute('readonly');
@@ -1452,6 +1433,8 @@ window.onload = function() {
     updateDataCount();
     renderLatestDraw();
     hideVipModal();
+
+    // 執行雲端同步
     fetchRemoteData();
 
     // 绑定卡密激活按钮
@@ -1460,7 +1443,6 @@ window.onload = function() {
         var code = inputEl.value.trim();
         var btn = this;
         
-        // 重置错误状态
         inputEl.style.borderColor = 'var(--line-2)';
         var oldError = document.getElementById('vipErrorMsg');
         if (oldError) oldError.remove();
@@ -1491,13 +1473,11 @@ window.onload = function() {
                 toast('🎉 激活成功，高级功能已解锁！');
                 setTimeout(function() { location.reload(); }, 1000);
             } else {
-                // 驗證失敗處理
                 var errMsg = result.msg || '卡密不存在或已失效';
                 inputEl.style.borderColor = 'var(--red)';
                 inputEl.style.animation = 'shake 0.4s';
                 setTimeout(function(){ inputEl.style.animation = ''; }, 400);
 
-                // 插入錯誤提示文字
                 var errDiv = document.createElement('div');
                 errDiv.id = 'vipErrorMsg';
                 errDiv.style.cssText = 'color:var(--red); font-size:12px; margin-top:-8px; margin-bottom:12px; text-align:left; padding-left:4px; display:flex; align-items:center; gap:4px; font-weight:600;';
@@ -1505,7 +1485,6 @@ window.onload = function() {
                 inputEl.parentNode.insertBefore(errDiv, btn);
             }
         } catch (error) {
-            // 網絡錯誤處理
             inputEl.style.borderColor = 'var(--red)';
             toast('❌ 网络连接失败，请检查网络');
         } finally {
@@ -1515,7 +1494,6 @@ window.onload = function() {
     });
 };
 
-// 增强的数据防丢失
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') saveData(false);
 });
@@ -1765,24 +1743,19 @@ async function copyFinal() {
     text += "------------------------\n";
     text += "最终大包围 (共" + final_numbers_array.length + "码):\n" + final_numbers_array.join(", ");
 
-    // 方法一：尝试使用现代的 Clipboard API
     if (navigator.clipboard && window.isSecureContext) {
         try {
             await navigator.clipboard.writeText(text);
             toast('✅ 复制实战报告成功');
-            return; // 成功后直接结束函数
+            return; 
         } catch (err) {
             console.warn('现代复制API失败，尝试降级方案', err);
-            // 如果现代 API 失败，不要 return，继续往下走执行传统方法
         }
     }
 
-    // 方法二：传统兼容方法（适用于老旧浏览器、App WebView 等）
     try {
         var textarea = document.createElement("textarea");
         textarea.value = text;
-        
-        // 关键修改：为了防止页面跳动，将其固定在可视区域外，并设置透明
         textarea.style.position = 'fixed';
         textarea.style.top = '0';
         textarea.style.left = '0';
@@ -1798,7 +1771,6 @@ async function copyFinal() {
 
         document.body.appendChild(textarea);
         
-        // 针对 iOS 的特殊处理
         if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
             var editable = textarea.contentEditable;
             var readOnly = textarea.readOnly;
@@ -1817,7 +1789,6 @@ async function copyFinal() {
             textarea.select();
         }
 
-        // 执行复制命令
         var successful = document.execCommand('copy');
         document.body.removeChild(textarea);
 
@@ -1831,6 +1802,7 @@ async function copyFinal() {
         toast('复制失败，请长按手动选择');
     }
 }
+
 /* ================= 高级指标计算辅助函数 ================= */
 function calcMA(arr, n) {
     if (arr.length < n) return arr[arr.length-1] || 25;
@@ -1854,7 +1826,7 @@ function calcEMA(arr, n) {
 
 /* ================= 20 大算法核心 ================= */
 function getAlgoKill(seq, algoType, period, killCount, categoryType) {
-    var nSeq = seq.slice(-Math.max(period, 60)); // 确保数据足够计算高级指标
+    var nSeq = seq.slice(-Math.max(period, 60)); 
     var freq = {};
     var allKeys = [];
 
@@ -1864,7 +1836,7 @@ function getAlgoKill(seq, algoType, period, killCount, categoryType) {
     else if (categoryType === 'num') { for (var k = 1; k <= 49; k++) allKeys.push(k); }
 
     for (var i = 0; i < allKeys.length; i++) freq[allKeys[i]] = 0;
-    var seqNums = nSeq.map(function(x){ return typeof x === 'number' ? x : 25; }); // 兜底
+    var seqNums = nSeq.map(function(x){ return typeof x === 'number' ? x : 25; }); 
     for (var k = 0; k < seqNums.length; k++) {
         if (freq[seqNums[k]] !== undefined) freq[seqNums[k]]++;
     }
@@ -2003,9 +1975,7 @@ function getAlgoKill(seq, algoType, period, killCount, categoryType) {
             var item = parseInt(allKeys[i]);
             scores[item] = -Math.abs(item - avg) + freq[item];
         }
-    } 
-    /* ======== 新增 5 大高级指标算法 ======== */
-    else if (algoType === 'macd') {
+    } else if (algoType === 'macd') {
         var ema12 = calcEMA(seqNums, 12);
         var ema26 = calcEMA(seqNums, 26);
         var dif = ema12 - ema26;
@@ -2054,10 +2024,10 @@ function getAlgoKill(seq, algoType, period, killCount, categoryType) {
     }
 
     var sorted = allKeys.slice().sort(function(a, b) { return scores[b] - scores[a]; });
-    return sorted.slice(-killCount); // 固定杀热（分数最高的杀掉）
+    return sorted.slice(-killCount); 
 }
 
-/* ================= 真实回测引擎（无未来函数，市场状态权重） ================= */
+/* ================= 真实回测引擎 ================= */
 function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
                         killNumCount, killZCount, killTCount, killCCount,
                         targetCount, useAutoKill, algoInput, valPeriod) {
@@ -2087,17 +2057,14 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
         algoScores.c[algos[a]] = 0;
     }
 
-    // 1. 计算当前市场状态（基于最近 10 期的标准差）
     var recent10 = seq.slice(-10);
     var mean10 = recent10.reduce(function(a,b){return a+b},0) / recent10.length;
     var variance = recent10.reduce(function(a,b){return a + Math.pow(b-mean10, 2)},0) / recent10.length;
     var stdDev = Math.sqrt(variance);
-    var marketState = stdDev > 15 ? 'volatile' : 'trend'; // 大于15视为震荡散乱，否则视为聚集趋势
+    var marketState = stdDev > 15 ? 'volatile' : 'trend'; 
 
-    // 确定性序列兜底（防止频次统计霸榜）
     var priorityList = ['macd', 'boll', 'mama', 'rsv', 'osc', 'markov', 'knn', 'golden', 'zone', 'prev_tail', 'sum_shift', 'oscillator', 'reverse', 'history_repeat', 'prime', 'even', 'missing', 'ma', 'fibonacci', 'stats'];
 
-    // ✅ 智能决策函数：市场状态加权 + 确定性序列兜底
     function pickBest(scores) {
         var max = -1;
         var bestList = [];
@@ -2112,13 +2079,11 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
         }
         if (bestList.length === 1) return bestList[0];
 
-        // 平局时的市场状态适应打星
         var stateBonus = {
             'trend': ['macd', 'mama', 'osc', 'ma'], 
             'volatile': ['boll', 'rsv', 'oscillator', 'reverse', 'stats']
         };
 
-        // 按市场状态权重优先，其次按确定性序列
         bestList.sort(function(a, b) {
             var aStateScore = stateBonus[marketState].indexOf(a) > -1 ? 1 : 0;
             var bStateScore = stateBonus[marketState].indexOf(b) > -1 ? 1 : 0;
@@ -2130,7 +2095,6 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
         return bestList[0];
     }
 
-    // 阶段一：计算全量算法胜率排行榜
     for (var i = startIdx; i < seq.length; i++) {
         var past = seq.slice(0, i);
         var pastZ = seqZ.slice(0, i);
@@ -2162,7 +2126,6 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
         }
     }
 
-    // 阶段二：动态决策最终使用的算法
     var finalAlgoNum = algoInput;
     var finalAlgoZ = algoInput;
     var finalAlgoT = algoInput;
@@ -2178,7 +2141,6 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
             finalAlgoC = pickBest(algoScores.c);
         }
     } else {
-        // 免费用户：选一个表现最差（胜率最低）的算法
         var worstNumAlgo = 'stats';
         var minRate = 100;
         for (var a = 0; a < algos.length; a++) {
@@ -2194,7 +2156,6 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
         finalAlgoC = worstNumAlgo;
     }
 
-    // 阶段三：按选定算法跑明细
     var hits = 0;
     var maxBlack = 0;
     var curBlack = 0;
@@ -2243,14 +2204,12 @@ function backtestEngine(seq, pNum, pZ, pT, pC, useNum, useZ, useT, useC,
 
             if (finalList.length > targetCount) {
                 var sortKill = finalList.slice();
-                // 修复：大底杀热，控盘也杀相对高频，保留极冷号（即按频次升序排列，取前N个）
                 sortKill.sort(function(a, b) { return nFreq[a] - nFreq[b]; });
                 finalList = sortKill.slice(0, targetCount);
             } else if (finalList.length < targetCount) {
                 var toRescue = [];
                 for (var r = 1; r <= 49; r++) if (finalList.indexOf(r) === -1) toRescue.push(r);
                 var sortRescue = toRescue.slice();
-                // 修复：需要补码时，补入大底杀掉的热码（按频次降序排列，取前N个）
                 sortRescue.sort(function(a, b) { return nFreq[b] - nFreq[a]; });
                 var need = targetCount - finalList.length;
                 for (var r = 0; r < need; r++) finalList.push(sortRescue[r]);
@@ -2303,7 +2262,6 @@ var RING_CIRC = 2 * Math.PI * 42;
 function runBacktest() {
     var isVip = checkVipStatus();
     
-    // 兜底限制
     if (!isVip) {
         document.getElementById('algoSelect').value = 'free_random';
         document.getElementById('swAutoKill').checked = false;
@@ -2360,7 +2318,7 @@ function runBacktest() {
             var killTCount = parseInt(document.getElementById('killTCount').value) || 2;
             var killCCount = parseInt(document.getElementById('killCCount').value) || 1;
             
-            if (!isVip) killNumCount = 13; // 强行覆盖为 36 码
+            if (!isVip) killNumCount = 13; 
 
             var maxPeriod = 10;
             if (useNum && pNum > maxPeriod) maxPeriod = pNum;
@@ -2397,7 +2355,6 @@ function runBacktest() {
                 targetCount, useAutoKill, algoInput, valPeriod
             );
 
-            /* ========== 回测统计 ========== */
             currentBtTotal = btResult.total;
             currentBtRate = btResult.rate + "%";
             currentBtMaxBlack = btResult.maxBlack;
@@ -2410,7 +2367,6 @@ function runBacktest() {
             var rateNum = parseFloat(btResult.rate) || 0;
             ring.style.strokeDashoffset = RING_CIRC - RING_CIRC * (rateNum / 100);
 
-            /* ========== 趋势条 ========== */
             var trendHtml = "";
             for (var i = 0; i < btResult.details.length; i++) {
                 var td = btResult.details[i];
@@ -2422,7 +2378,6 @@ function runBacktest() {
             tb.innerHTML = trendHtml;
             setTimeout(function() { tb.scrollLeft = tb.scrollWidth; }, 40);
 
-            /* ========== 算法排行榜（全量展示 20 个） ========== */
             document.getElementById('algo-rank-box').style.display = 'block';
             document.getElementById('rank-hint').style.display = isVip ? 'none' : 'block';
 
@@ -2457,7 +2412,6 @@ function runBacktest() {
                 }
             }
 
-            /* ========== 逐期明细 ========== */
             var listHtml = "";
             var lastIdx = btResult.details.length - 1;
             for (var i = lastIdx; i >= 0; i--) {
@@ -2487,7 +2441,6 @@ function runBacktest() {
             }
             document.getElementById('bt-list-container').innerHTML = listHtml;
 
-            /* ========== 下一期预测 ========== */
             var lastPeriod = periods[periods.length - 1];
             var pNumVal = parseInt(lastPeriod.replace(/\D/g, ''));
             currentPredictPeriod = !isNaN(pNumVal) ? ((pNumVal + 1) + " 期") : (lastPeriod + " 的下一期");
@@ -2527,7 +2480,6 @@ function runBacktest() {
             document.getElementById('lbl-bt-black').innerText = currentBtMaxBlack;
             document.getElementById('lbl-strategy').innerText = currentStrategyStr;
 
-            /* ---- KDJ 数据 ---- */
             var k_prev = 50, d_prev = 50;
             var n_kdj = Math.min(9, seq.length);
             for (var i = n_kdj - 1; i < seq.length; i++) {
@@ -2584,11 +2536,9 @@ function runBacktest() {
             techHtml += "</div>";
             document.getElementById('tech-alert-box').innerHTML = techHtml;
 
-            /* ---- 新增 5 大高级指标渲染 ---- */
             var advHtml = "";
             var advHint = document.getElementById('adv-vip-hint');
             
-            // 计算当前值展示
             var ema12 = calcEMA(seq, 12);
             var ema26 = calcEMA(seq, 26);
             var dif = ema12 - ema26;
@@ -2637,7 +2587,6 @@ function runBacktest() {
             }
             document.getElementById('adv-indicator-grid').innerHTML = advHtml;
 
-            /* ---- AI 战术描述 ---- */
             var aiHtml = "";
             aiHtml += "<b>【算法模型】</b>采用 <b>" + (algoInput === 'automl' ? '20大算法自动优选' : algoNames[algoInput]) + "</b> 进行核心过滤。<br>";
             
@@ -2653,9 +2602,6 @@ function runBacktest() {
             aiHtml += "<b>【当前生效过滤层】</b>" + activeFilters.join("、") + "。";
             document.getElementById('ai-desc-text').innerHTML = aiHtml;
 
-            /* ---- 漏斗展示 ---- */
-
-            /* Step 1 */
             var baseResult = [];
             if (useNum) {
                 document.getElementById('step1-box').style.display = 'block';
@@ -2671,7 +2617,6 @@ function runBacktest() {
                 for (var i = 1; i <= 49; i++) baseResult.push(i);
             }
 
-            /* Step 2 */
             var step2Result = [];
             if (useZ) {
                 document.getElementById('step2-box').style.display = 'block';
@@ -2688,7 +2633,6 @@ function runBacktest() {
                 step2Result = baseResult.slice();
             }
 
-            /* Step 3 */
             var step3Result = [];
             if (useT) {
                 document.getElementById('step3-box').style.display = 'block';
@@ -2705,7 +2649,6 @@ function runBacktest() {
                 step3Result = step2Result.slice();
             }
 
-            /* Step 4 */
             var step4Result = [];
             if (useC) {
                 document.getElementById('step4-box').style.display = 'block';
@@ -2722,7 +2665,6 @@ function runBacktest() {
                 step4Result = step3Result.slice();
             }
 
-            /* Step 5 */
             var finalList = step4Result.slice();
             document.getElementById('step5-box').style.display = 'block';
 
@@ -2734,7 +2676,6 @@ function runBacktest() {
             if (useAutoKill) {
                 if (finalList.length > targetCount) {
                     var sortKill = finalList.slice();
-                    // 修复：大底杀热，控盘也杀相对高频，保留极冷号（即按频次升序排列，取前N个）
                     sortKill.sort(function(a, b) { return nFreq[a] - nFreq[b]; });
                     var killed = sortKill.slice(targetCount);
                     finalList = sortKill.slice(0, targetCount);
@@ -2744,7 +2685,6 @@ function runBacktest() {
                     var toRescue = [];
                     for (var r = 1; r <= 49; r++) if (finalList.indexOf(r) === -1) toRescue.push(r);
                     var sortRescue = toRescue.slice();
-                    // 修复：需要补码时，补入大底杀掉的热码（按频次降序排列，取前N个）
                     sortRescue.sort(function(a, b) { return nFreq[b] - nFreq[a]; });
                     var need = targetCount - finalList.length;
                     var rescued = sortRescue.slice(0, need);
