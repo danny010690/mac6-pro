@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>新澳特码版回测 v1.6.4网络验证免费版</title>
+<title>新澳特码版回测 v1.6.4更新后台云端同步历史记录</title>
 <style>
 /* 卡密錯誤震動動畫 */
 @keyframes shake {
@@ -767,7 +767,7 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
         <div class="card">
             <div class="card-header">
                 <span class="card-title">雲端開獎歷史</span>
-                <span class="chip-mint" id="sync-status" style="cursor:pointer;" onclick="fetchRemoteData()">同步中...</span>
+                <span class="chip-mint" id="history-sync-status" style="cursor:pointer;" onclick="fetchRemoteData()">同步中...</span>
             </div>
             <div class="bt-list" id="history-record-list" style="max-height: 70vh;">
                 <!-- 記錄會由 JS 動態生成 -->
@@ -1172,27 +1172,19 @@ var autoMlWinners = { num: 'stats', z: 'stats', t: 'stats', c: 'stats' };
 var REMOTE_DATA_URL = 'https://danny010690.github.io/mac6-pro/history.json'; 
 
 async function fetchRemoteData() {
-    var statusEls = document.querySelectorAll('#sync-status'); 
-    
-    try {
-        // 加入時間戳 ?t=... 避免 GitHub Pages 的 CDN 緩存導致抓到舊數據
-        const response = await fetch(REMOTE_DATA_URL + '?t=' + new Date().getTime(), { cache: "no-store" });
-        
-        if (!response.ok) throw new Error('HTTP 狀態碼錯誤: ' + response.status);
-        
-        const rawData = await response.json();
-        
-        // 容錯處理：如果後台返回的不是數組，嘗試轉換
-        let data = rawData;
-        if (!Array.isArray(data) && data.data && Array.isArray(data.data)) {
-            data = data.data;
-        }
+    var statusEl = document.getElementById('history-sync-status');
+    if (statusEl) statusEl.innerText = '同步中...';
 
+    try {
+        const response = await fetch(REMOTE_DATA_URL + '?t=' + new Date().getTime(), { cache: "no-store" });
+        if (!response.ok) throw new Error('網絡請求失敗');
+        
+        const data = await response.json();
+        
         if (data && data.length > 0) {
             // 1. 更新輸入框
             var newText = "";
             data.forEach(item => {
-                // 兼容 period 和 num 可能為字串或數字的情況
                 var p = item.period || item.issue || '';
                 var n = parseInt(item.num || item.number || 0);
                 if (p && n > 0) {
@@ -1205,52 +1197,49 @@ async function fetchRemoteData() {
                 historyEl.value = newText.trim();
                 saveData(false);
                 updateDataCount();
-                // 這裡會更新「最新開獎展示」的大球
-                renderLatestDraw(); 
+                renderLatestDraw(); // 更新首頁大球
             }
             
-            // 2. 更新狀態文字
-            statusEls.forEach(el => { 
-                el.innerText = '已同步 (' + data.length + '期)'; 
-                el.style.color = 'var(--accent)'; 
-            });
+            // 2. 更新歷史頁的狀態文字
+            if (statusEl) {
+                statusEl.innerText = '已同步 (' + data.length + '期)'; 
+                statusEl.style.color = 'var(--accent)'; 
+            }
             
             // 3. 渲染歷史列表
             renderHistoryRecord(data);
             
-            // 4. 強制重新渲染最新一期（確保萬無一失）
-            if (typeof renderLatestDraw === 'function') {
-                 renderLatestDraw();
-            }
         } else {
-            throw new Error('JSON 數據為空或格式不正確');
+            throw new Error('數據為空');
         }
     } catch (error) {
-        console.error('❌ 後台同步失敗:', error);
-        statusEls.forEach(el => {
-            el.innerText = '離線模式';
-            el.style.color = 'var(--red)';
-        });
-        // 離線時解析本地 textarea
+        console.warn('後台同步失敗:', error);
+        if (statusEl) {
+            statusEl.innerText = '離線模式';
+            statusEl.style.color = 'var(--red)';
+        }
+        // 離線時使用本地數據渲染
         parseLocalAndRender();
     }
 }
 
+// 渲染歷史記錄列表
 function renderHistoryRecord(dataArray) {
-    var card = document.getElementById('history-record-card');
     var list = document.getElementById('history-record-list');
+    if (!list) return;
     
     if (!dataArray || dataArray.length === 0) {
-        card.style.display = 'none';
+        list.innerHTML = "<div class='empty-state'><div class='empty-hint'>暫無記錄</div></div>";
         return;
     }
     
-    card.style.display = 'block';
     var html = "";
-    var recent = dataArray.slice(-20).reverse(); 
+    var recent = dataArray.slice(-50).reverse(); // 取最近 50 期
     
     recent.forEach(item => {
-        var num = item.num;
+        var num = parseInt(item.num || item.number || 0);
+        var period = item.period || item.issue || '未知期號';
+        
         var colorClass = "ball-gray";
         if (redNums.indexOf(num) > -1) colorClass = "ball-red";
         else if (blueNums.indexOf(num) > -1) colorClass = "ball-blue";
@@ -1259,11 +1248,11 @@ function renderHistoryRecord(dataArray) {
         var z = getZodiac(num);
         var numStr = num < 10 ? "0" + num : num;
 
-        html += `<div class="bt-row" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0;">`;
-        html += `<div class="bt-period" style="font-size:13px;">${item.period}</div>`;
-        html += `<div class="num-badge ${colorClass}" style="width:34px; height:34px; cursor:default;">`;
-        html += `<div class="ball-num" style="font-size:13px;">${numStr}</div>`;
-        html += `<div class="ball-zodiac" style="font-size:8px; margin-top:1px;">${z}</div>`;
+        html += `<div class="bt-row" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line);">`;
+        html += `<div class="bt-period" style="font-size:14px; font-weight:600; color:var(--dim);">${period}</div>`;
+        html += `<div class="num-badge ${colorClass}" style="width:38px; height:38px; cursor:default;">`;
+        html += `<div class="ball-num" style="font-size:14px;">${numStr}</div>`;
+        html += `<div class="ball-zodiac" style="font-size:9px; margin-top:1px;">${z}</div>`;
         html += `</div>`;
         html += `</div>`;
     });
@@ -1271,6 +1260,7 @@ function renderHistoryRecord(dataArray) {
     list.innerHTML = html;
 }
 
+// 解析本地文本框並渲染
 function parseLocalAndRender() {
     var text = document.getElementById('history').value;
     if (!text) return;
