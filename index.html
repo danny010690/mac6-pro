@@ -1637,31 +1637,72 @@ async function copyFinal() {
     text += "------------------------\n";
     text += "最终大包围 (共" + final_numbers_array.length + "码):\n" + final_numbers_array.join(", ");
 
-    try {
-        if (navigator.clipboard && window.isSecureContext) {
+    // 方法一：尝试使用现代的 Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
             await navigator.clipboard.writeText(text);
             toast('✅ 复制实战报告成功');
+            return; // 成功后直接结束函数
+        } catch (err) {
+            console.warn('现代复制API失败，尝试降级方案', err);
+            // 如果现代 API 失败，不要 return，继续往下走执行传统方法
+        }
+    }
+
+    // 方法二：传统兼容方法（适用于老旧浏览器、App WebView 等）
+    try {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        
+        // 关键修改：为了防止页面跳动，将其固定在可视区域外，并设置透明
+        textarea.style.position = 'fixed';
+        textarea.style.top = '0';
+        textarea.style.left = '0';
+        textarea.style.width = '2em';
+        textarea.style.height = '2em';
+        textarea.style.padding = '0';
+        textarea.style.border = 'none';
+        textarea.style.outline = 'none';
+        textarea.style.boxShadow = 'none';
+        textarea.style.background = 'transparent';
+        textarea.style.opacity = '0';
+        textarea.style.zIndex = '-1';
+
+        document.body.appendChild(textarea);
+        
+        // 针对 iOS 的特殊处理
+        if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+            var editable = textarea.contentEditable;
+            var readOnly = textarea.readOnly;
+            textarea.contentEditable = true;
+            textarea.readOnly = true;
+            var range = document.createRange();
+            range.selectNodeContents(textarea);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            textarea.setSelectionRange(0, 999999);
+            textarea.contentEditable = editable;
+            textarea.readOnly = readOnly;
         } else {
-            var textarea = document.createElement("textarea");
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.top = '0';
-            textarea.style.left = '0';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
             textarea.focus();
             textarea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textarea);
-            document.body.focus(); 
-            window.scrollTo(0, window.scrollY);
+        }
+
+        // 执行复制命令
+        var successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (successful) {
             toast('✅ 复制实战报告成功');
+        } else {
+            toast('复制失败，请长按手动选择');
         }
     } catch (err) {
-        toast('复制失败，请长按选择');
+        console.error('传统复制方法也失败了', err);
+        toast('复制失败，请长按手动选择');
     }
 }
-
 /* ================= 高级指标计算辅助函数 ================= */
 function calcMA(arr, n) {
     if (arr.length < n) return arr[arr.length-1] || 25;
