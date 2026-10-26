@@ -737,9 +737,18 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
 
     <!-- ==================== 数据页 ==================== -->
     <section id="page-data" class="page active">
-        
+        <!-- 新增：歷史記錄查看區塊 -->
+        <div class="card" id="history-record-card" style="display:none;">
+            <div class="card-header">
+                <span class="card-title">最新開獎記錄</span>
+                <span class="chip-mint" id="sync-status" style="cursor:pointer;" onclick="fetchRemoteData()">同步中...</span>
+            </div>
+            <div class="bt-list" id="history-record-list" style="max-height: 250px;">
+                <!-- 記錄會由 JS 動態生成 -->
+            </div>
+        </div>
         <div class="card latest-card" id="latest-draw-card" style="display:none;">
-            <div class="latest-title">最新开奖展示</div>
+            <div class="latest-title">最新开将展示</div>
             <div class="latest-period" id="latest-period">--</div>
             <div class="latest-ball-wrap" id="latest-ball-wrap">
                 <!-- 号球通过 JS 插入 -->
@@ -748,7 +757,7 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
 
         <div class="card">
             <div class="card-header">
-                <span class="card-title">历史开奖数据</span>
+                <span class="card-title">历史开将数据</span>
                 <span class="chip-mint" id="data-count-badge">0 期</span>
             </div>
             <textarea id="history" oninput="onHistoryInput()" placeholder="每行一条，格式：期号:号码&#10;例：&#10;2026001:29&#10;2026002:22"></textarea>
@@ -1150,7 +1159,101 @@ var currentBtRate = "0.0%";
 var currentBtMaxBlack = "0";
 
 var autoMlWinners = { num: 'stats', z: 'stats', t: 'stats', c: 'stats' };
+/* ================= 後台雲端同步與歷史記錄展示 ================= */
 
+// 1. 這裡替換成你的 GitHub 鏈接 (例如：https://你的帳號.github.io/你的專案/history.json)
+var REMOTE_DATA_URL = 'https://danny010690.github.io/history.json'; 
+
+async function fetchRemoteData() {
+    var statusEl = document.getElementById('sync-status');
+    if (statusEl) statusEl.innerText = '同步中...';
+
+    try {
+        const response = await fetch(REMOTE_DATA_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error('網絡請求失敗');
+        
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            var newText = "";
+            data.forEach(item => {
+                newText += item.period + ":" + (item.num < 10 ? "0" + item.num : item.num) + "\n";
+            });
+
+            var historyEl = document.getElementById('history');
+            if (historyEl.value.trim() !== newText.trim()) {
+                historyEl.value = newText.trim();
+                saveData(false);
+                updateDataCount();
+                renderLatestDraw();
+            }
+            
+            if (statusEl) statusEl.innerText = '已同步';
+            renderHistoryRecord(data);
+        }
+    } catch (error) {
+        console.warn('後台同步失敗，使用本地數據', error);
+        if (statusEl) {
+            statusEl.innerText = '離線模式';
+            statusEl.style.color = 'var(--red)';
+        }
+        parseLocalAndRender();
+    }
+}
+
+function renderHistoryRecord(dataArray) {
+    var card = document.getElementById('history-record-card');
+    var list = document.getElementById('history-record-list');
+    
+    if (!dataArray || dataArray.length === 0) {
+        card.style.display = 'none';
+        return;
+    }
+    
+    card.style.display = 'block';
+    var html = "";
+    var recent = dataArray.slice(-20).reverse(); 
+    
+    recent.forEach(item => {
+        var num = item.num;
+        var colorClass = "ball-gray";
+        if (redNums.indexOf(num) > -1) colorClass = "ball-red";
+        else if (blueNums.indexOf(num) > -1) colorClass = "ball-blue";
+        else if (greenNums.indexOf(num) > -1) colorClass = "ball-green";
+        
+        var z = getZodiac(num);
+        var numStr = num < 10 ? "0" + num : num;
+
+        html += `<div class="bt-row" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0;">`;
+        html += `<div class="bt-period" style="font-size:13px;">${item.period}</div>`;
+        html += `<div class="num-badge ${colorClass}" style="width:34px; height:34px; cursor:default;">`;
+        html += `<div class="ball-num" style="font-size:13px;">${numStr}</div>`;
+        html += `<div class="ball-zodiac" style="font-size:8px; margin-top:1px;">${z}</div>`;
+        html += `</div>`;
+        html += `</div>`;
+    });
+    
+    list.innerHTML = html;
+}
+
+function parseLocalAndRender() {
+    var text = document.getElementById('history').value;
+    if (!text) return;
+    
+    var lines = text.split('\n');
+    var data = [];
+    lines.forEach(line => {
+        var matches = line.match(/\d+/g);
+        if (matches && matches.length > 0) {
+            var n = parseInt(matches[matches.length - 1]);
+            var p = line.replace(/\d+$/, '').replace(/[:：\s]/g, '').trim();
+            if (n >= 1 && n <= 49) {
+                data.push({ period: p, num: n });
+            }
+        }
+    });
+    renderHistoryRecord(data);
+}
 /* ================= VIP 网络验证控制 ================= */
 const API_URL = 'https://winter-night-ffc5.vivibeauty01.workers.dev'; 
 
@@ -1324,8 +1427,8 @@ window.onload = function() {
     updateDataCount();
     renderLatestDraw();
     hideVipModal();
+    fetchRemoteData();
 
-    // 绑定卡密激活按钮
     // 绑定卡密激活按钮
     document.getElementById('vipActivateBtn').addEventListener('click', async function() {
         var inputEl = document.getElementById('vipCodeInput');
