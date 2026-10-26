@@ -1169,22 +1169,35 @@ var autoMlWinners = { num: 'stats', z: 'stats', t: 'stats', c: 'stats' };
 /* ================= 後台雲端同步與歷史記錄展示 ================= */
 
 // 1. 這裡替換成你的 GitHub 鏈接 (例如：https://你的帳號.github.io/你的專案/history.json)
-var REMOTE_DATA_URL = 'https://danny010690.github.io/history.json'; 
+var REMOTE_DATA_URL = 'https://danny010690.github.io/mac6-pro/history.json'; 
 
 async function fetchRemoteData() {
-    var statusEl = document.getElementById('sync-status');
-    if (statusEl) statusEl.innerText = '同步中...';
-
+    var statusEls = document.querySelectorAll('#sync-status'); 
+    
     try {
-        const response = await fetch(REMOTE_DATA_URL, { cache: "no-store" });
-        if (!response.ok) throw new Error('網絡請求失敗');
+        // 加入時間戳 ?t=... 避免 GitHub Pages 的 CDN 緩存導致抓到舊數據
+        const response = await fetch(REMOTE_DATA_URL + '?t=' + new Date().getTime(), { cache: "no-store" });
         
-        const data = await response.json();
+        if (!response.ok) throw new Error('HTTP 狀態碼錯誤: ' + response.status);
         
+        const rawData = await response.json();
+        
+        // 容錯處理：如果後台返回的不是數組，嘗試轉換
+        let data = rawData;
+        if (!Array.isArray(data) && data.data && Array.isArray(data.data)) {
+            data = data.data;
+        }
+
         if (data && data.length > 0) {
+            // 1. 更新輸入框
             var newText = "";
             data.forEach(item => {
-                newText += item.period + ":" + (item.num < 10 ? "0" + item.num : item.num) + "\n";
+                // 兼容 period 和 num 可能為字串或數字的情況
+                var p = item.period || item.issue || '';
+                var n = parseInt(item.num || item.number || 0);
+                if (p && n > 0) {
+                    newText += p + ":" + (n < 10 ? "0" + n : n) + "\n";
+                }
             });
 
             var historyEl = document.getElementById('history');
@@ -1192,18 +1205,33 @@ async function fetchRemoteData() {
                 historyEl.value = newText.trim();
                 saveData(false);
                 updateDataCount();
-                renderLatestDraw();
+                // 這裡會更新「最新開獎展示」的大球
+                renderLatestDraw(); 
             }
             
-            if (statusEl) statusEl.innerText = '已同步';
+            // 2. 更新狀態文字
+            statusEls.forEach(el => { 
+                el.innerText = '已同步 (' + data.length + '期)'; 
+                el.style.color = 'var(--accent)'; 
+            });
+            
+            // 3. 渲染歷史列表
             renderHistoryRecord(data);
+            
+            // 4. 強制重新渲染最新一期（確保萬無一失）
+            if (typeof renderLatestDraw === 'function') {
+                 renderLatestDraw();
+            }
+        } else {
+            throw new Error('JSON 數據為空或格式不正確');
         }
     } catch (error) {
-        console.warn('後台同步失敗，使用本地數據', error);
-        if (statusEl) {
-            statusEl.innerText = '離線模式';
-            statusEl.style.color = 'var(--red)';
-        }
+        console.error('❌ 後台同步失敗:', error);
+        statusEls.forEach(el => {
+            el.innerText = '離線模式';
+            el.style.color = 'var(--red)';
+        });
+        // 離線時解析本地 textarea
         parseLocalAndRender();
     }
 }
