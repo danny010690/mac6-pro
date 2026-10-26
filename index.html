@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>新澳特码版回测 v1.5.4网络验证免费版</title>
 <style>
+/* 卡密錯誤震動動畫 */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}    
 :root{
     --bg:#080a0e;
     --bg-2:#0b0e14;
@@ -1319,11 +1326,24 @@ window.onload = function() {
     hideVipModal();
 
     // 绑定卡密激活按钮
+    // 绑定卡密激活按钮
     document.getElementById('vipActivateBtn').addEventListener('click', async function() {
-        var code = document.getElementById('vipCodeInput').value.trim();
-        if (!code) return alert('请输入激活码');
-        
+        var inputEl = document.getElementById('vipCodeInput');
+        var code = inputEl.value.trim();
         var btn = this;
+        
+        // 重置错误状态
+        inputEl.style.borderColor = 'var(--line-2)';
+        var oldError = document.getElementById('vipErrorMsg');
+        if (oldError) oldError.remove();
+
+        if (!code) {
+            inputEl.style.borderColor = 'var(--red)';
+            inputEl.style.animation = 'shake 0.4s';
+            setTimeout(function(){ inputEl.style.animation = ''; }, 400);
+            return;
+        }
+        
         var oldText = btn.textContent;
         btn.textContent = '联网验证中...';
         btn.disabled = true;
@@ -1339,14 +1359,27 @@ window.onload = function() {
                 
                 hideVipModal();
                 updateVipUI();
-                document.getElementById('vipCodeInput').value = '';
+                inputEl.value = '';
                 toast('🎉 激活成功，高级功能已解锁！');
-                setTimeout(function() { location.reload(); }, 1000); // 刷新页面解锁 UI
+                setTimeout(function() { location.reload(); }, 1000);
             } else {
-                alert('❌ ' + (result.msg || '激活码错误'));
+                // 驗證失敗處理
+                var errMsg = result.msg || '卡密不存在或已失效';
+                inputEl.style.borderColor = 'var(--red)';
+                inputEl.style.animation = 'shake 0.4s';
+                setTimeout(function(){ inputEl.style.animation = ''; }, 400);
+
+                // 插入錯誤提示文字
+                var errDiv = document.createElement('div');
+                errDiv.id = 'vipErrorMsg';
+                errDiv.style.cssText = 'color:var(--red); font-size:12px; margin-top:-8px; margin-bottom:12px; text-align:left; padding-left:4px; display:flex; align-items:center; gap:4px; font-weight:600;';
+                errDiv.innerHTML = '<span>❌</span> ' + errMsg;
+                inputEl.parentNode.insertBefore(errDiv, btn);
             }
         } catch (error) {
-            alert('❌ 网络连接失败，请检查网络或刷新重试');
+            // 網絡錯誤處理
+            inputEl.style.borderColor = 'var(--red)';
+            toast('❌ 网络连接失败，请检查网络');
         } finally {
             btn.textContent = oldText;
             btn.disabled = false;
