@@ -737,16 +737,6 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
 
     <!-- ==================== 数据页 ==================== -->
     <section id="page-data" class="page active">
-        <!-- 新增：歷史記錄查看區塊 -->
-        <div class="card" id="history-record-card" style="display:none;">
-            <div class="card-header">
-                <span class="card-title">最新開獎記錄</span>
-                <span class="chip-mint" id="sync-status" style="cursor:pointer;" onclick="fetchRemoteData()">同步中...</span>
-            </div>
-            <div class="bt-list" id="history-record-list" style="max-height: 250px;">
-                <!-- 記錄會由 JS 動態生成 -->
-            </div>
-        </div>
         <div class="card latest-card" id="latest-draw-card" style="display:none;">
             <div class="latest-title">最新开将展示</div>
             <div class="latest-period" id="latest-period">--</div>
@@ -772,7 +762,18 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
         </div>
         <div class="hint" style="padding:0 6px;">号码范围为 1–49，每行一条，系统会实时自动保存到本地，防止意外丢失。</div>
     </section>
-
+<!-- ==================== 開獎歷史頁 ==================== -->
+    <section id="page-history" class="page">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">雲端開獎歷史</span>
+                <span class="chip-mint" id="sync-status" style="cursor:pointer;" onclick="fetchRemoteData()">同步中...</span>
+            </div>
+            <div class="bt-list" id="history-record-list" style="max-height: 70vh;">
+                <!-- 記錄會由 JS 動態生成 -->
+            </div>
+        </div>
+    </section>
     <!-- ==================== 参数页 ==================== -->
     <section id="page-config" class="page">
 
@@ -1099,6 +1100,12 @@ select:focus{border-color:rgba(var(--accent-rgb),.5)}
             <rect x="15.1" y="14.5" width="3.4" height="5.5" rx="1"/>
         </svg>
         <span>回测</span>
+        <button data-page="history" onclick="switchPage('history')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12 7 12 12 15 15"/>
+        </svg>
+        <span>開獎歷史</span>
     </button>
 </nav>
 
