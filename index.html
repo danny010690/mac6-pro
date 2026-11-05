@@ -400,10 +400,10 @@ input:checked + .slider:before{transform:translateX(18px);background:var(--accen
                 <span class="chip-mint">25 種策略</span>
             </div>
             <select id="algoSelect" onchange="onAlgoChange()">
-                <option value="free_random" selected>普通隨機算法優選（系統匹配）</option>
-                <option value="adaptive" style="color:var(--accent);font-weight:900;">⭐ 自適應混合策略 (V6.2 三路對決)</option>
-                <option value="consensus" style="color:var(--gold);font-weight:900;">25大算法共識投票 (V5 閾值)</option>
-                <option value="automl">25 大算法自動優選（VIP）</option>
+                <option value="free_random" selected>Theta 基础概率推演（免费版）</option>
+                <option value="adaptive" style="color:var(--accent);font-weight:900;">⭐ Beta 自適應混沌路由 (Auto-RL)</option>
+                <option value="consensus" style="color:var(--gold);font-weight:900;">Omega 全息共识网络 (Consensus-V3)</option>
+                <option value="automl">Alpha 核心旗舰引擎（M-ST融合）（VIP）</option>
                 <option value="stats">1. 傳統頻次統計</option>
                 <option value="markov">2. 馬爾可夫鏈</option>
                 <option value="knn">3. KNN 最近鄰</option>
@@ -1236,7 +1236,7 @@ async function copyFinal() {
         return; 
     }
     final_numbers_array.sort((a, b) => a - b);
-    var text = `【AI戰術五級漏斗】出票報告\n預測期號：${currentPredictPeriod}\n生成時間：${currentGenTime}\n回測表現：近 ${currentBtTotal} 期，勝率 ${currentBtRate}，最大連黑 ${currentBtMaxBlack} 期\n採用策略：${document.getElementById('lbl-used-algo').innerText}\n過濾策略：${currentStrategyStr}\n------------------------\n最終大包圍 (共${final_numbers_array.length}碼):\n${final_numbers_array.join(", ")}`;
+    var text = `【AI戰術阻击手】出票報告\n預測期號：${currentPredictPeriod}\n生成時間：${currentGenTime}\n回測表現：近 ${currentBtTotal} 期，勝率 ${currentBtRate}，最大連黑 ${currentBtMaxBlack} 期\n採用策略：${document.getElementById('lbl-used-algo').innerText}\n過濾策略：${currentStrategyStr}\n------------------------\n最終大包圍 (共${final_numbers_array.length}碼):\n${final_numbers_array.join(", ")}`;
     
     if (navigator.clipboard && window.isSecureContext) { 
         try { 
