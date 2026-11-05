@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>奧特阻擊手V6共識版v2.7.7</title>
+<title>引力奧特阻擊手V6共識版v2.7.7</title>
 <style>
 :root{
     --bg:#080a0e; --bg-2:#0b0e14; --surface:#11151d; --surface-2:#161b26; --surface-3:#1c2230;
@@ -2331,7 +2331,7 @@ function runBacktest() {
                 var algoStr = [];
                 
                 if (!isVip) {
-                    algoStr.push("普通隨機優選");
+                    algoStr.push("基础概率推演（免费版）");
                 } else if (algoInput === 'adaptive') {
                     if (d.winType === 'automl') {
                         algoStr.push("全局冠軍:25大優選");
@@ -2414,7 +2414,7 @@ function runBacktest() {
             document.getElementById('lbl-strategy').innerText = currentStrategyStr;
             
             if (!isVip) {
-                document.getElementById('lbl-used-algo').innerText = '普通隨機算法 (免費用戶)';
+                document.getElementById('lbl-used-algo').innerText = 'Theta基础概率推演（免费版）';
             } else if (algoInput === 'adaptive') {
                 var winModeStr = btResult.details[0].winType === 'automl' ? '25大算法自動優選' : (btResult.details[0].winType === 'consensus' ? '25大算法共識投票' : '傳統頻次統計');
                 document.getElementById('lbl-used-algo').innerText = winModeStr + ' (自適應勝出)';
